@@ -140,12 +140,13 @@ reverseDouble xs =  (altMap (\y -> y) (luhnDouble) (reverse xs))
 luhn :: Integer -> Bool
 luhn x = ((sum (reverseDouble (intToList x))) `mod` 10) == 0
 
+-- check for credit cards
 isAmericanExpress :: Integer -> Bool
 isAmericanExpress x = ((take 2 list) == [3,7] || (take 2 list) == [3,4]) && (luhn x) && ((length list) == 15)
       where list = (intToList x)
 
 isMaster :: Integer -> Bool
-isMaster x = ((length list) == 16) && (luhn x) && (firstTwo >= 51 || firstTwo <= 55 || firstFour >= 2221 || firstFour <= 2720)
+isMaster x = ((length list) == 16) && (luhn x) && ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720))
       where list = (intToList x)
             firstTwo = (list !! 0) * 10 + (list !! 1)
             firstFour = (list !! 0) * 1000 + (list !! 1) * 100 + (list !! 2) * 10 + (list !! 3)
@@ -154,9 +155,51 @@ isVisa :: Integer -> Bool
 isVisa x = ((length list) == 16) && ((head list) == 4) && (luhn x)
       where list = (intToList x)
 
---make test
---maybe use numbers from generating website
--- combine with random generated numbers that you know are not true
+-- list with valid credit card numbers
+visaTestList :: [Integer]
+visaTestList = [4485991127021869,4929364449072685,4024007117459502,4032239221220120,4929102118087224,4539202786465983,4916928283209267,4024007164631193,4024007118535946,4024007165567362]
+
+masterTestList :: [Integer]
+masterTestList = [5497755394834301,5140060650079555,5334274908193896,5285271107019228,5365762159957243,5172721726944319,5241214003235970,5546992705736344,5372641067552109,5221210400062987]
+
+muricanTestList :: [Integer]
+muricanTestList = [340533127037249,370225417418550,375365520275243,370070821153074,370502731004351,348500848068698,349266889993637,370522932316099,370530294267644,372123628957300]
+
+-- visa tests
+testVisaCorrect :: Integer -> Bool
+testVisaCorrect y = isVisa(visaTestList !! (fromIntegral(y `mod` fromIntegral(length visaTestList))))
+
+testVisaFalse :: Integer -> Bool
+testVisaFalse y = not(isVisa((masterTestList ++ muricanTestList) !! (fromIntegral(y `mod` fromIntegral(length (masterTestList ++ muricanTestList))))))
+
+-- mastercard tests
+testMasterCorrect :: Integer -> Bool
+testMasterCorrect y = isMaster(masterTestList !! (fromIntegral(y `mod` fromIntegral(length masterTestList))))
+
+testMasterFalse :: Integer -> Bool
+testMasterFalse y = not(isMaster((visaTestList ++ muricanTestList) !! (fromIntegral(y `mod` fromIntegral(length (visaTestList ++ muricanTestList))))))
+
+-- american express tests
+testMuricanCorrect :: Integer -> Bool
+testMuricanCorrect y = isAmericanExpress(muricanTestList !! (fromIntegral(y `mod` fromIntegral(length muricanTestList))))
+
+testMuricanFalse :: Integer -> Bool
+testMuricanFalse y = not(isAmericanExpress((masterTestList ++ visaTestList) !! (fromIntegral(y `mod` fromIntegral(length (masterTestList ++ visaTestList))))))
+
+-- Test all credit card functions
+testAllCards = do
+  quickCheck testVisaCorrect
+  quickCheck testVisaFalse
+  quickCheck testMasterCorrect
+  quickCheck testMasterFalse
+  quickCheck testMuricanCorrect
+  quickCheck testMuricanFalse
+  
+-- exercise 8
+-- accuses :: Boy -> Boy -> Bool
+-- accusers :: Boy -> [Boy]
+-- guilty :: [Boy]
+-- honest :: [Boy]
 
 main = do
   -- quickCheck myallTest
@@ -172,12 +215,6 @@ main = do
   -- print(generatePrimeFromList)
   -- print (perms [1,2,3])
   --print(primePairs 10000)
-  print ([luhnDouble x | x <- [0..9]])
-  print (intToList 1234)
-  print (reverseDouble ( intToList 11884499))
-  print (luhn 9337750542)
-  print (isVisa 4916751636479829)
-  print (isAmericanExpress 370564150611413)
-  print (isMaster 5235067916309151)
+  testAllCards
   
 
