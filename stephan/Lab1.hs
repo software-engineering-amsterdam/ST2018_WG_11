@@ -192,3 +192,4 @@ main = do
   print "Visa invalid"
   print [isVisa x | x <- cna ++ cnm]
   print [isVisa (x+1) | x <- cnv]
+  print "Assignment 8"
