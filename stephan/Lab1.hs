@@ -113,32 +113,54 @@ luhn :: Integer -> Bool
 luhn n = sum (rem9 (doubleSecond (intToArray n))) `mod` 10 == 0
 
 isAmericanExpress, isMaster, isVisa :: Integer -> Bool
-isAmericanExpress n = n < 10 ^ 15 && n > 10 ^ 14 && luhn n
-isMaster n = n < 10 ^ 16 && n > 10 ^ 15 && luhn n
-isVisa = isMaster
+isAmericanExpress n = n < 10 ^ 15 && n > 10 ^ 14 && 
+          (n `div` 10 ^ 13 == 34 || n `div` 10 ^ 13 == 37) 
+          && luhn n
+
+cna = [345155957798446, 373027332909508, 
+                  340227066123207, 344057431243067, 
+                  349228300021257]     
+
+
+isMaster n = n < 10 ^ 16 && n > 10 ^ 15 &&
+            ((n `div` 10 ^ 12 >= 2221 && n `div` 10 ^ 12 <= 2720)
+            || (n `div` 10 ^ 14 >= 51 && n `div` 10 ^ 14 <= 55))
+            && luhn n
+
+cnm = [5355665978044246, 5263531517517913, 
+        5354578706848732, 5210635501980104, 5431815415855971]
+
+isVisa n = n < 10 ^ 16 && n > 10 ^ 15 &&
+            n `div` 10 ^ 15 == 4
+            && luhn n
+cnv = [4485252728515225, 4556313212144015, 
+          4024007176420791, 4539954793392069, 4916742975970049]
+
 
 -- 8
 accuses :: Boy -> Boy -> Bool
--- accuses Peter Matthew = True
--- accuses Peter Jack = True
-accuses Jack Matthew = True
-accuses Jack Peter = True
--- accuses Arnold Matthew = True
--- accuses Arnold Peter = True
-accuses Carl Arnold = True
-accuses _ _ = False
+accuses x y = True
+
+-- -- accuses Peter Matthew = True
+-- -- accuses Peter Jack = True
+-- accuses Jack Matthew = True
+-- accuses Jack Peter = True
+-- -- accuses Arnold Matthew = True
+-- -- accuses Arnold Peter = True
+-- accuses Carl Arnold = True
+-- accuses _ _ = False
 
 accusers :: Boy -> [Boy]
-accusers Matthew = [Jack]
-accusers Peter = [Jack]
-accusers Jack = []
-accusers Arnold = [Carl]
-accusers Carl = []
--- accusers Matthew = [Peter, Jack, Arnold]
--- accusers Peter = [Jack, Arnold]
--- accusers Jack = [Peter]
+-- accusers Matthew = [Jack]
+-- accusers Peter = [Jack]
+-- accusers Jack = []
 -- accusers Arnold = [Carl]
 -- accusers Carl = []
+accusers Matthew = [Peter, Jack, Arnold]
+accusers Peter = [Jack, Arnold]
+accusers Jack = [Peter]
+accusers Arnold = [Carl]
+accusers Carl = []
 
 
 
@@ -146,7 +168,7 @@ main = do
   print "Assignment 1"
   quickCheck myTest
   quickCheck myTest2
-  print "Assignment 2 - powerset"s
+  print "Assignment 2 - powerset"
   quickCheck permsTest
   print "Assignment 4 - reversed primes"
   print reversedPrimes
@@ -154,3 +176,19 @@ main = do
   print (sumPrimes primes)
   print "Assignment 6 - counterexample"
   print counterConjecture
+  print "Assignment 7 - creditcards"
+  print "American express valid"
+  print [isAmericanExpress x | x <- cna]
+  print "American invalid"
+  print [isAmericanExpress x | x <- cnm ++ cnv]
+  print [isAmericanExpress (x + 1) | x <- cna]
+  print "Mastercard valid"
+  print [isMaster x | x <- cnm]
+  print "Mastercard invalid"
+  print [isMaster x | x <- cna ++ cnv]
+  print [isMaster (x+1) | x <- cnm]
+  print "Visa valid"
+  print [isVisa x | x <- cnv]
+  print "Visa invalid"
+  print [isVisa x | x <- cna ++ cnm]
+  print [isVisa (x+1) | x <- cnv]
