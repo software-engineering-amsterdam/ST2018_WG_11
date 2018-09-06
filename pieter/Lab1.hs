@@ -1,6 +1,7 @@
 module Lab1 where
 import Data.List
 import Test.QuickCheck
+import Data.Char
 
 prime :: Integer -> Bool
 prime n = n > 1 && all (\ x -> rem n x /= 0) xs
@@ -103,17 +104,59 @@ testPrimePairs = \ y -> length ([(a,b) | (a,b) <- (primePairs y),
                     (a == (reversal b)) && (isPrime a) && (isPrime b)]) == (length (primePairs y))
 --it does check if the pairs are correct but not if these are all the pairs that exist
 
-
+  -- exercise 5
 primesTo10000 :: [Integer]
 primesTo10000 = primesUntil 10000
--- exercise 5
-testSome :: Integer
-testSome = head ( filter isPrime [sum(take 101 (drop y primesTo10000)) | y <- [0..]])
--- i dont know how to test this
+
+generatePrimeFromList :: Integer
+generatePrimeFromList = head ( filter isPrime [sum(take 101 (drop y primesTo10000)) | y <- [0..]])
+
+testGeneratePrimeFromList :: Bool
+testGeneratePrimeFromList = isPrime generatePrimeFromList
  
 -- exercise 6
+counterExamples :: [Integer]
+counterExamples = [(product (take x primes) + 1) | x <- [1..] ,not (isPrime (product (take x primes) + 1))]
 
+smallestCounterExample :: Integer
+smallestCounterExample = head counterExamples
 
+-- exercise 7
+altMap :: (a -> b) -> (a -> b) -> [a] -> [b]
+altMap f _ (x:[]) = [f x]
+altMap f g (x:y:[]) = [f x,g y]
+altMap f g (x:y:xs) = (f x) : (g y) : (altMap f g xs)
+
+luhnDouble :: Integer -> Integer
+luhnDouble x | x * 2 > 9 = (x * 2) - 9
+             | otherwise = x * 2
+
+intToList :: Integer -> [Integer]
+intToList x = [toInteger( digitToInt y) | y <- (show x)]
+
+reverseDouble :: [Integer] -> [Integer]
+reverseDouble xs =  (altMap (\y -> y) (luhnDouble) (reverse xs))
+
+luhn :: Integer -> Bool
+luhn x = ((sum (reverseDouble (intToList x))) `mod` 10) == 0
+
+isAmericanExpress :: Integer -> Bool
+isAmericanExpress x = ((take 2 list) == [3,7] || (take 2 list) == [3,4]) && (luhn x) && ((length list) == 15)
+      where list = (intToList x)
+
+isMaster :: Integer -> Bool
+isMaster x = ((length list) == 16) && (luhn x) && (firstTwo >= 51 || firstTwo <= 55 || firstFour >= 2221 || firstFour <= 2720)
+      where list = (intToList x)
+            firstTwo = (list !! 0) * 10 + (list !! 1)
+            firstFour = (list !! 0) * 1000 + (list !! 1) * 100 + (list !! 2) * 10 + (list !! 3)
+
+isVisa :: Integer -> Bool
+isVisa x = ((length list) == 16) && ((head list) == 4) && (luhn x)
+      where list = (intToList x)
+
+--make test
+--maybe use numbers from generating website
+-- combine with random generated numbers that you know are not true
 
 main = do
   -- quickCheck myallTest
@@ -122,11 +165,19 @@ main = do
   -- quickCheck testFuncs2
   -- quickCheck testPrimePairs
   -- quickCheck(testPowerSet)
-  print (perms [1,2,3])
-  print ( factorial 3)
-  quickCheck testPerms
-  -- print(testSome)
+  -- print (perms [1,2,3])
+  -- print ( factorial 3)
+  -- quickCheck testGeneratePrimeFromList
+  -- quickCheck testPerms
+  -- print(generatePrimeFromList)
   -- print (perms [1,2,3])
   --print(primePairs 10000)
+  print ([luhnDouble x | x <- [0..9]])
+  print (intToList 1234)
+  print (reverseDouble ( intToList 11884499))
+  print (luhn 9337750542)
+  print (isVisa 4916751636479829)
+  print (isAmericanExpress 370564150611413)
+  print (isMaster 5235067916309151)
   
 
