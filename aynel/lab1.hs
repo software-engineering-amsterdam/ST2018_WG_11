@@ -114,3 +114,11 @@ sumprimes n =
 -- start with offset 0 
 -- everytime not found; raise offset with one
 -- when found; stop and return prime
+
+-- 6. What is the smallest counterexample?
+outputfunc :: Integer
+outputfunc = head [product (take x primes) + 1 | x <- [1..], not(prime (product (take x primes) + 1))]
+
+-- 7. Implement and test the Luhn Algorithm
+
+-- 8. Crime Scene Investigation
