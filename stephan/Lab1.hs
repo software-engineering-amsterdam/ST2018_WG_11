@@ -69,24 +69,76 @@ permsTest xs = (length xs < 10) --> perms xs ==
 -- 4 20 minuts
 reversedPrimes :: [Integer]
 reversedPrimes = let xs = takeWhile (< 10000) primes 
-                  in [x |x <- xs, elem (reversal x) xs]
+                  in [x |x <- xs, prime (reversal x)]
 
 -- You could test this by checking if the reversed is                 
 -- an element in the list
 
--- 5 40 minuts
-sumPrimes :: Integer -> [Integer] -> Integer -> [Integer] ->
-             [Integer]
-sumPrimes amount xs 0 ys 
-                 | (prime (sum ys)) = ys 
-                 | otherwise = sumPrimes amount xs amount []
-sumPrimes amount (x:xs) counter ys = 
-                sumPrimes amount xs (counter - 1) (ys ++ [x])
+-- 5 70 minuts
+sumPrimes :: [Integer] -> [Integer]
+sumPrimes (x:xs) | prime (sum (take 101 (x:xs))) = take 101 (x:xs)
+                 | otherwise = sumPrimes xs
 
--- Yes it is 163003
--- You can check it by prime (sum (sumPrimes 101 primes 0 []))
+-- You can check wether it is a prime, but not if it is the 
+-- smallest prime
+-- The number is 37447
 
--- 6
+-- 6 60 minuts
+-- test :: Int -> [Integer]
+-- test n | prime (product (take n primes) + 1) = test (n + 1)
+--        | otherwise = take n primes
+
+
+counterConjecture = head [take y primes | y <- [1..], 
+                    not (prime (product (take y primes) + 1))]
+
+-- 7 90 minuts
+
+intToArray :: Integer -> [Integer]
+intToArray 0 = []
+intToArray n = n `mod` 10 : intToArray (n `div` 10)
+
+myMap :: (Integer -> Integer) -> [Integer] -> [Integer]
+myMap f [] = []
+myMap f (x:y:xs) = x : f y : myMap f xs
+myMap f (x:xs) = x : []
+
+doubleSecond :: [Integer] -> [Integer]
+doubleSecond xs = myMap (*2) xs
+
+rem9 :: [Integer] -> [Integer]
+rem9 xs = [if x > 9 then (x - 9) else x| x <- xs]
+
+luhn :: Integer -> Bool
+luhn n = sum (rem9 (doubleSecond (intToArray n))) `mod` 10 == 0
+
+isAmericanExpress, isMaster, isVisa :: Integer -> Bool
+isAmericanExpress n = n < 10 ^ 15 && n > 10 ^ 14 && luhn n
+isMaster n = n < 10 ^ 16 && n > 10 ^ 15 && luhn n
+isVisa = isMaster
+
+-- 8
+accuses :: Boy -> Boy -> Bool
+-- accuses Peter Matthew = True
+-- accuses Peter Jack = True
+accuses Jack Matthew = True
+accuses Jack Peter = True
+-- accuses Arnold Matthew = True
+-- accuses Arnold Peter = True
+accuses Carl Arnold = True
+accuses _ _ = False
+
+accusers :: Boy -> [Boy]
+accusers Matthew = [Jack]
+accusers Peter = [Jack]
+accusers Jack = []
+accusers Arnold = [Carl]
+accusers Carl = []
+-- accusers Matthew = [Peter, Jack, Arnold]
+-- accusers Peter = [Jack, Arnold]
+-- accusers Jack = [Peter]
+-- accusers Arnold = [Carl]
+-- accusers Carl = []
 
 
 
@@ -94,11 +146,11 @@ main = do
   print "Assignment 1"
   quickCheck myTest
   quickCheck myTest2
-  print "Assignment 2 - powerset"
-  quickCheck powersetTest
-  print "Assignment 3 - permutations"
+  print "Assignment 2 - powerset"s
   quickCheck permsTest
   print "Assignment 4 - reversed primes"
   print reversedPrimes
   print "Assignment 5 - sum of 101 primes is a prime"
-  print (sumPrimes 101 primes 0 [])
+  print (sumPrimes primes)
+  print "Assignment 6 - counterexample"
+  print counterConjecture
