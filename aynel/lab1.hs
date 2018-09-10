@@ -1,3 +1,7 @@
+
+-- NOTEREN HOEVEEL TIJD ALLES HEEFT GEKOST!
+
+
 module Lab1 where
 import Data.List
 import Test.QuickCheck
@@ -122,3 +126,29 @@ outputfunc = head [product (take x primes) + 1 | x <- [1..], not(prime (product 
 -- 7. Implement and test the Luhn Algorithm
 
 -- 8. Crime Scene Investigation
+
+accuses :: Boy -> Boy -> Bool
+accuses Peter Matthew = True
+accuses Peter Jack = True
+
+accuses Jack Carl = True
+
+accuses Arnold Matthew = True
+accuses Arnold Jack = True
+
+accuses Carl Jack = True
+accuses Carl Carl = True
+
+accuses _ _ = False
+
+-- list of every 
+accusers :: Boy -> [Boy]
+accusers x = [y | y <-boys, accuses y x]
+
+guilty, honest :: [Boy]
+-- check al lists of accusers, select the one with 3, as 3 people speak the truth
+honest = head (filter (\x -> length x == 3) [accusers x | x<-boys])
+
+guilty = [x| x<-boys, length (accusers x) == 3]
+
+-- kan ook op andere manier; honest mensen bepalen door middel van de guilty!
