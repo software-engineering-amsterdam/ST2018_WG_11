@@ -137,31 +137,30 @@ cnv = [4485252728515225, 4556313212144015,
           4024007176420791, 4539954793392069, 4916742975970049]
 
 
--- 8
-accuses :: Boy -> Boy -> Bool
-accuses x y = True
+-- 8 120 minuts (+ 20 minuts the day before)
+xor :: Bool -> Bool -> Bool
+xor a b = (a || b) && not (a && b)
 
--- -- accuses Peter Matthew = True
--- -- accuses Peter Jack = True
--- accuses Jack Matthew = True
--- accuses Jack Peter = True
--- -- accuses Arnold Matthew = True
--- -- accuses Arnold Peter = True
--- accuses Carl Arnold = True
--- accuses _ _ = False
+accuses :: Boy -> Boy -> Bool
+accuses Matthew Carl = False
+accuses Matthew Matthew = False
+accuses Matthew _ = True
+accuses Peter Matthew = True
+accuses Peter Jack = True
+accuses Peter _ = False
+accuses Jack x = not (accuses Matthew x) && not (accuses Peter x)
+accuses Arnold x = xor (accuses Matthew x && not (accuses Peter x)) 
+                (not (accuses Matthew x) && accuses Peter x)
+accuses Carl x = not (accuses Arnold x)
+
 
 accusers :: Boy -> [Boy]
--- accusers Matthew = [Jack]
--- accusers Peter = [Jack]
--- accusers Jack = []
--- accusers Arnold = [Carl]
--- accusers Carl = []
-accusers Matthew = [Peter, Jack, Arnold]
-accusers Peter = [Jack, Arnold]
-accusers Jack = [Peter]
-accusers Arnold = [Carl]
-accusers Carl = []
+accusers x = [y| y <- boys, accuses y x]
 
+-- 3 persons are honest so length must be 3
+quilty, honest :: [Boy]
+quilty = [x| x <- boys, length (accusers x) == 3]
+honest = [y| x <- quilty, y <- (accusers x)]
 
 
 main = do
@@ -193,3 +192,7 @@ main = do
   print [isVisa x | x <- cna ++ cnm]
   print [isVisa (x+1) | x <- cnv]
   print "Assignment 8"
+  print "Honest"
+  print honest
+  print "quilty"
+  print quilty
