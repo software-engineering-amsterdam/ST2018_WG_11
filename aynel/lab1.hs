@@ -125,19 +125,34 @@ outputfunc = head [product (take x primes) + 1 | x <- [1..], not(prime (product 
 
 -- 7. Implement and test the Luhn Algorithm
 
--- 8. Crime Scene Investigation
+-- 8. Crime Scene Investigation. Time: +/- 60 minutes first (wrong) solution, +/- 60 min new solution
+xor :: Bool -> Bool -> Bool
+xor x y | x == True && y == False = True
+        | x == False && y == True = True
+        | otherwise = False
 
 accuses :: Boy -> Boy -> Bool
+accuses Matthew Carl = False
+accuses Matthew Matthew = False
+accuses Matthew _ = True
+
 accuses Peter Matthew = True
 accuses Peter Jack = True
 
-accuses Jack Carl = True
+-- Jack says Peter and Matthew are lying
+accuses Jack x = not (accuses Peter x) && not (accuses Matthew x)
 
-accuses Arnold Matthew = True
-accuses Arnold Jack = True
+-- Arnold says Matthew or Peter is speaking the truth
+accuses Arnold x = xor (accuses Matthew x && not (accuses Peter x)) (not (accuses Matthew x) && accuses Peter x)
 
-accuses Carl Jack = True
-accuses Carl Carl = True
+-- Carl says Arnold is lying
+accuses Carl x = not (accuses Arnold x)
+
+-- accuses Jack Carl = True
+-- accuses Arnold Matthew = True
+-- accuses Arnold Jack = True
+-- accuses Carl Jack = True
+-- accuses Carl Carl = True
 
 accuses _ _ = False
 
