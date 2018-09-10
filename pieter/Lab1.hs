@@ -21,11 +21,6 @@ forall = flip all
 reversal :: Integer -> Integer
 reversal = read . reverse . show
 
-data Boy = Matthew | Peter | Jack | Arnold | Carl
-           deriving (Eq,Show)
-
-boys = [Matthew, Peter, Jack, Arnold, Carl]
-
 myall :: (a ->Bool) -> [a] ->Bool
 myall p [] = True
 myall p (x:xs) = p x && myall p xs
@@ -196,10 +191,45 @@ testAllCards = do
   quickCheck testMuricanFalse
   
 -- exercise 8
--- accuses :: Boy -> Boy -> Bool
--- accusers :: Boy -> [Boy]
+data Boy = Matthew | Peter | Jack | Arnold | Carl
+           deriving (Eq,Show)
+
+boys = [Matthew, Peter, Jack, Arnold, Carl]
+
+-- assume the first three tell the truth and the last two lie
+checkCombination :: [Boys] -> Bool
+-- check if all their statement imply
+checkCombination bs = [bs | bs <- (perms boys)]
+
+
+accuses :: Boy -> Boy -> Bool
+accuses Matthew Carl = False
+accuses Matthew Matthew = False
+--Er is nog iets van een default case nodig ofzo
+-- accuses Peter Matthew =  not (accuses Peter Jack)  --not both can be true
+-- accuses Peter Jack = not (accuses Peter Matthew)     --not both can be true
+-- Since the or is not exclusive i think both can be true
+accuses Peter Matthew = True
+accuses Peter Jack = True
+-- we cant directly say who they accuse we can only say that who the other boy accuses is true or not
+accuses Jack x = not (accuses Peter x) && not (accuses Matthew x)
+-- Maybe create exclusive or function for this
+accuses Arnold x = (accuses Peter x || accuses accuses Matthew x) && not (accuses Peter x && accuses accuses Matthew x)
+accuses Carl x = not (accusses Arnold x)
+
+
+accusers :: Boy -> [Boy]
+accusers y = [x | x <- boys , accuses x y]
+-- accusers Matthew = [Peter, Jack, Arnold]
+-- accusers Peter = [Jack, Arnold]
+-- accusers Jack = [Peter]
+-- accusers Arnold = [Carl]
+-- accusers Carl = []
 -- guilty :: [Boy]
 -- honest :: [Boy]
+
+
+-- gebruik permutations om verschillende combinaties van mensen die de waarheid spreken (120 opties: 5!)
 
 main = do
   -- quickCheck myallTest
@@ -216,5 +246,5 @@ main = do
   -- print (perms [1,2,3])
   --print(primePairs 10000)
   testAllCards
-  
+  print (perms boys)
 
