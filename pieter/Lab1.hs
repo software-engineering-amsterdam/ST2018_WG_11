@@ -111,7 +111,8 @@ testGeneratePrimeFromList = isPrime generatePrimeFromList
  
 -- exercise 6
 counterExamples :: [Integer]
-counterExamples = [(product (take x primes) + 1) | x <- [1..] ,not (isPrime (product (take x primes) + 1))]
+counterExamples = [test x | x <- [1..] ,not (isPrime (test x))]
+        where test = \y -> product (take y primes) + 1
 
 smallestCounterExample :: Integer
 smallestCounterExample = head counterExamples
@@ -137,11 +138,12 @@ luhn x = ((sum (reverseDouble (intToList x))) `mod` 10) == 0
 
 -- check for credit cards
 isAmericanExpress :: Integer -> Bool
-isAmericanExpress x = ((take 2 list) == [3,7] || (take 2 list) == [3,4]) && (luhn x) && ((length list) == 15)
+isAmericanExpress x = ((length list) == 15) && ((take 2 list) == [3,7] || (take 2 list) == [3,4]) && (luhn x)
       where list = (intToList x)
 
+-- actually did find an error in this code thanks to quickcheck ;p
 isMaster :: Integer -> Bool
-isMaster x = ((length list) == 16) && (luhn x) && ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720))
+isMaster x = ((length list) == 16) && ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720)) && (luhn x)
       where list = (intToList x)
             firstTwo = (list !! 0) * 10 + (list !! 1)
             firstFour = (list !! 0) * 1000 + (list !! 1) * 100 + (list !! 2) * 10 + (list !! 3)
@@ -243,6 +245,7 @@ main = do
   -- quickCheck testFuncs1
   -- quickCheck testFuncs2
   -- quickCheck testPrimePairs
+  print (primePairs 1000)
   -- quickCheck(testPowerSet)
   -- print (perms [1,2,3])
   -- print ( factorial 3)
@@ -252,7 +255,7 @@ main = do
   -- print (perms [1,2,3])
   --print(primePairs 10000)
 
-  -- testAllCards
+  testAllCards
   -- print (perms boys)
   print guilty
   print honest
