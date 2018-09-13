@@ -88,7 +88,7 @@ sumPrimes (x:xs) | prime (sum (take 101 (x:xs))) = take 101 (x:xs)
 -- test n | prime (product (take n primes) + 1) = test (n + 1)
 --        | otherwise = take n primes
 
-
+counterConjecture :: [Integer]
 counterConjecture = head [take y primes | y <- [1..], 
                     not (prime (product (take y primes) + 1))]
 
@@ -117,25 +117,25 @@ isAmericanExpress n = n < 10 ^ 15 && n > 10 ^ 14 &&
           (n `div` 10 ^ 13 == 34 || n `div` 10 ^ 13 == 37) 
           && luhn n
 
-cna = [345155957798446, 373027332909508, 
-                  340227066123207, 344057431243067, 
-                  349228300021257]     
-
 
 isMaster n = n < 10 ^ 16 && n > 10 ^ 15 &&
             ((n `div` 10 ^ 12 >= 2221 && n `div` 10 ^ 12 <= 2720)
             || (n `div` 10 ^ 14 >= 51 && n `div` 10 ^ 14 <= 55))
             && luhn n
 
-cnm = [5355665978044246, 5263531517517913, 
-        5354578706848732, 5210635501980104, 5431815415855971]
-
 isVisa n = n < 10 ^ 16 && n > 10 ^ 15 &&
             n `div` 10 ^ 15 == 4
             && luhn n
+            
 cnv = [4485252728515225, 4556313212144015, 
           4024007176420791, 4539954793392069, 4916742975970049]
 
+cna = [345155957798446, 373027332909508, 
+          340227066123207, 344057431243067, 
+          349228300021257]     
+
+cnm = [5355665978044246, 5263531517517913, 
+      5354578706848732, 5210635501980104, 5431815415855971]
 
 -- 8 120 minuts (+ 20 minuts the day before)
 xor :: Bool -> Bool -> Bool
@@ -149,8 +149,7 @@ accuses Peter Matthew = True
 accuses Peter Jack = True
 accuses Peter _ = False
 accuses Jack x = not (accuses Matthew x) && not (accuses Peter x)
-accuses Arnold x = xor (accuses Matthew x && not (accuses Peter x)) 
-                (not (accuses Matthew x) && accuses Peter x)
+accuses Arnold x = xor (accuses Matthew x) (accuses Peter x) 
 accuses Carl x = not (accuses Arnold x)
 
 
