@@ -109,7 +109,90 @@ testPermutation :: [Integer] -> Bool
 testPermutation xs = (length xs < 5) --> foldr (&&) True 
                     [isPermutation xs ys | ys <- permutations xs]
 
+{-
+    Can you automate the test process? Use the techniques 
+    presented in this week's lecture. Also use QuickCheck.
+
+    Deliverables: Haskell program, concise test report, 
+    indication of time spent.
+-}
+
 -- 5 Recognizing and generating derangements
+
+isDerangement :: Eq a => [a] -> [a] -> Bool
+isDerangement [] [] = True
+isDerangement [] x = False
+isDerangement x [] = False
+isDerangement (x:xs) (y:ys) = x /= y && isDerangement xs ys
+{-
+    Doesn't test if elements are double in the list
+-}
+
+deran :: Integer ->  [[Integer]]
+deran n = [x| x <- (permutations [0..(n-1)]), 
+                isDerangement [0..(n-1)] x]
+{-
+    Next, define some testable properties for the 
+    isDerangement function, and use some well-chosen 
+    integer lists to test isDerangement.
+-}
+
+{-
+    src: https://en.wikipedia.org/wiki/Derangement#Computational_complexity 
+    Starting with n = 0, the numbers of derangements of n are:
+
+    1, 0, 1, 2, 9, 44, 265, 1854, 14833, 133496, 1334961, 
+    14684570, 176214841, 2290792932, ... 
+-}
+deranTest = length (deran 4) == 9 && length (deran 5) == 44 && 
+            length (deran 6) == 265 && length (deran 7) == 1854 &&
+            length (deran 8) == 14833
+
+-- 6 Implementing and testing ROT13 encoding
+
+{-
+    First, give a specification of ROT13.
+
+    ROT13 is a simple algorithm that splits the alphabet in two
+    and then cast a tot n, b to o, etc
+-}
+
+{-
+    Next, give a simple implementation of ROT13.
+-}
+
+rot13 :: String -> String
+rot13 [] = []
+rot13 (x:xs) | x >= 'a' && x < 'n' ||
+               x >= 'A' && x < 'N' = chr (ord x + 13) : rot13 xs
+             | x >= 'n' && x <= 'z' ||
+               x >= 'N' && x <= 'Z' = chr (ord x - 13) : rot13 xs
+             | otherwise = x : rot13 xs
+{-
+    Finally, turn the specification into a series of QuickCheck
+    testable properties, and use these to test your implementation.
+-}
+rot13LengthTest :: String -> Bool
+rot13LengthTest xs = length xs == length (rot13 xs)
+
+-- 7 Implementing and testing IBAN validation
+move :: Integer -> [a] -> [a]
+move 0 xs = xs
+move n (x:xs) = move (n - 1) xs ++ [x]
+
+todigit :: Char -> [Integer]
+todigit x = [y `div` 10, y `mod` 10] 
+                where y = toInteger (ord x - ord 'a' + 10)
+
+makeBigInt :: [Integer] -> Integer
+makeBigInt [] = 0
+makeBigInt (x:xs) = x + makeBigInt (map (*10) xs)
+
+iban xs = makeBigInt (reverse (concat 
+            [if isAlpha x then todigit x 
+            else [toInteger (digitToInt x)] 
+            | x <- (move 4 xs)])) 
+                `mod` 97
 
 
 main = do
@@ -124,3 +207,9 @@ main = do
         print propertieStrength
         print "Assignment 4 Permutatations"
         quickCheck testPermutation
+        print "Assignment 5 Derangments"
+        print deranTest
+        print "Assignment 6 rot13"
+        print (rot13 "abcdefghijklmnopqrstuvwxyz")
+        print (rot13 "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        quickCheck rot13LengthTest
