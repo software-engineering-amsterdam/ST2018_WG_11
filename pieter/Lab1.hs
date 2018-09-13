@@ -111,7 +111,8 @@ testGeneratePrimeFromList = isPrime generatePrimeFromList
  
 -- exercise 6
 counterExamples :: [Integer]
-counterExamples = [(product (take x primes) + 1) | x <- [1..] ,not (isPrime (product (take x primes) + 1))]
+counterExamples = [test x | x <- [1..] ,not (isPrime (test x))]
+        where test = \y -> product (take y primes) + 1
 
 smallestCounterExample :: Integer
 smallestCounterExample = head counterExamples
@@ -137,11 +138,12 @@ luhn x = ((sum (reverseDouble (intToList x))) `mod` 10) == 0
 
 -- check for credit cards
 isAmericanExpress :: Integer -> Bool
-isAmericanExpress x = ((take 2 list) == [3,7] || (take 2 list) == [3,4]) && (luhn x) && ((length list) == 15)
+isAmericanExpress x = ((length list) == 15) && ((take 2 list) == [3,7] || (take 2 list) == [3,4]) && (luhn x)
       where list = (intToList x)
 
+-- actually did find an error in this code thanks to quickcheck ;p
 isMaster :: Integer -> Bool
-isMaster x = ((length list) == 16) && (luhn x) && ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720))
+isMaster x = ((length list) == 16) && ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720)) && (luhn x)
       where list = (intToList x)
             firstTwo = (list !! 0) * 10 + (list !! 1)
             firstFour = (list !! 0) * 1000 + (list !! 1) * 100 + (list !! 2) * 10 + (list !! 3)
@@ -197,25 +199,27 @@ data Boy = Matthew | Peter | Jack | Arnold | Carl
 boys = [Matthew, Peter, Jack, Arnold, Carl]
 
 -- assume the first three tell the truth and the last two lie
-checkCombination :: [Boys] -> Bool
+-- checkCombination :: [Boys] -> Bool
 -- check if all their statement imply
-checkCombination bs = [bs | bs <- (perms boys)]
+-- checkCombination bs = [bs | bs <- (perms boys)]
 
 
 accuses :: Boy -> Boy -> Bool
 accuses Matthew Carl = False
 accuses Matthew Matthew = False
+accuses Matthew _ = True
 --Er is nog iets van een default case nodig ofzo
 -- accuses Peter Matthew =  not (accuses Peter Jack)  --not both can be true
 -- accuses Peter Jack = not (accuses Peter Matthew)     --not both can be true
 -- Since the or is not exclusive i think both can be true
 accuses Peter Matthew = True
 accuses Peter Jack = True
+accuses Peter _ = False
 -- we cant directly say who they accuse we can only say that who the other boy accuses is true or not
 accuses Jack x = not (accuses Peter x) && not (accuses Matthew x)
 -- Maybe create exclusive or function for this
-accuses Arnold x = (accuses Peter x || accuses accuses Matthew x) && not (accuses Peter x && accuses accuses Matthew x)
-accuses Carl x = not (accusses Arnold x)
+accuses Arnold x = (accuses Peter x || accuses Matthew x) && not (accuses Peter x && accuses Matthew x)
+accuses Carl x = not (accuses Arnold x)
 
 
 accusers :: Boy -> [Boy]
@@ -225,8 +229,12 @@ accusers y = [x | x <- boys , accuses x y]
 -- accusers Jack = [Peter]
 -- accusers Arnold = [Carl]
 -- accusers Carl = []
--- guilty :: [Boy]
--- honest :: [Boy]
+
+
+guilty :: [Boy]
+guilty = [x | x <- boys, length (accusers x) == 3]
+honest :: [Boy]
+honest = [y | x <- guilty, y <- (accusers x)]
 
 
 -- gebruik permutations om verschillende combinaties van mensen die de waarheid spreken (120 opties: 5!)
@@ -237,6 +245,7 @@ main = do
   -- quickCheck testFuncs1
   -- quickCheck testFuncs2
   -- quickCheck testPrimePairs
+  print (primePairs 1000)
   -- quickCheck(testPowerSet)
   -- print (perms [1,2,3])
   -- print ( factorial 3)
@@ -245,6 +254,8 @@ main = do
   -- print(generatePrimeFromList)
   -- print (perms [1,2,3])
   --print(primePairs 10000)
-  testAllCards
-  print (perms boys)
 
+  testAllCards
+  -- print (perms boys)
+  print guilty
+  print honest
