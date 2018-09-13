@@ -99,7 +99,8 @@ testfactorial xn = (length xn < 10) --> factorial (length xn) == length (permuta
     This is most definitly NOT a mathematical proof. This sample testings.
     -}
 
--- 4. The natural number 13 has the property that it is prime and its reversal, the number 31, is also prime. Write a function that finds all primes < 10000 with this property.
+-- 4. The natural number 13 has the property that it is prime and its reversal, 
+--    the number 31, is also prime. Write a function that finds all primes < 10000 with this property.
 
 reversedPrimes :: [Integer]
 reversedPrimes = let xs = takeWhile (< 10000) primes 
