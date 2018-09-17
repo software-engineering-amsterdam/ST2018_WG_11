@@ -170,6 +170,10 @@ assignment5Report = do
 
 -- 6 Implementing and testing ROT13 encoding
 
+{- 
+    rot13 is an algorihm that takes a string and rotes it with a difference
+    of 13 characters.
+-}
 
 rot13 :: String -> String
 rot13 [] = []
@@ -179,29 +183,37 @@ rot13 (x:xs) | x >= 'a' && x < 'n' ||
                x >= 'N' && x <= 'Z' = chr (ord x - 13) : rot13 xs
              | otherwise = x : rot13 xs
 {-
-    TODO: Explain what we do
+    manual tests for rot13.
 -}
-
 smallAlphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
 largeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-
 rotatedSmall = "nopqrstuvwxyzabcdefghijklm1234567890"
 rotatedLarge = "NOPQRSTUVWXYZABCDEFGHIJKLM1234567890"
 
+-- The length of an encoded string must be the same as the initial one
 rot13LengthTest :: String -> Bool
 rot13LengthTest xs = length xs == length (rot13 xs)
 
-rot13Test :: [Char] -> Bool
+{-
+    When the string is bigger then the empty string and contains a alphabetic
+    character it should not be the same as the initial string and when you
+    rotate the string twice the same initial result should come out.
+-}
+rot13Test :: String -> Bool
 rot13Test xs = ((length cs) > 0) && isAlpha (head cs) -->  (rot13 cs) /= cs && (rot13 (rot13 cs)) == cs
                 where cs = show xs
 
+                
 assignment6Report = do
+    print (rot13 smallAlphabet)
+    print (rot13 largeAlphabet)
     print (rot13 smallAlphabet == rotatedSmall)
     print (rot13 largeAlphabet == rotatedLarge)
     print (rot13 (rot13 smallAlphabet) == smallAlphabet)
     print (rot13( rot13 largeAlphabet) == largeAlphabet)
     quickCheck rot13LengthTest
     quickCheck rot13Test
+
 
 -- 7 Implementing and testing IBAN validation
 
@@ -222,11 +234,41 @@ lettersToIntegers (c:cs) = if isUpper c then
 iban :: String -> Bool
 iban cs = ((read (lettersToIntegers (moveF4ToBack cs)) :: Integer) `mod` 97) == 1
 
+-- Test results
 
 {-
-    TODO: Meer correcte testcases handmatig toevoegen
-    You should invent a way to test with incorrect examples also.
+    Increment Number With One
+    Makes iban invalid: Takes a string with at least one Number and 
+    increments the first number with one.
+-}
+inwo :: String -> String
+inwo (x:xs) | isNumber x = chr ((ord x - ord '0' + 1) `mod` 10 + ord '0') : xs
+            | otherwise = x : inwo xs
 
+
+-- One valid iban number for every country
+validIbanNumbers :: [String]
+validIbanNumbers = 
+    [
+        "GB82 WEST 1234 5698 7654 32", "FR76 3000 6000 0112 3456 7890 189", "AD10994158463H4ZS9BKSQ65","AE591822963255324364383","AL6295496225TL97CH7QAESHOCP5","AT216335991632561698","AZ55ZCYNFJ22WDZKM8OKC0JSIK4F","BA262178601039419450","BE14370109142531",
+        "BG70ORDZ776985APOODSHZ","BH57AUTMC40QH4HCCQSNJN","BR2357520282083962316112424LG","BY91TLD53539BJ84L5V8RHEN8KMW","CH5230063XTRNGTE648M0","CR28187161928892693512","CY8496981181O2EWKSBPEBIF848R","CZ0761488919151612079444","DE98756235360674485858","DK1062569766766675",
+        "DO917DGD50813360262443123799","EE156536313403026507","ES8055642092242062212194","FI2784072492308811","FO0213086537460370","FR074032936702MDZUNJMRV5E52","GB33SCEQ98400924784542","GE37JX0298197643873741","GI35KQOX0XA53DD1APIRFMZ","GL9492929394922044",
+        "GR136224543F7I5HKL5FXDDCRAO","GT863D2WSIFS8JZ0VRRW7B9I7VEZ","HR2613554422026293540","HU78309067413183010510072390","IE57JIJA31632031092654","IL510578567620066644649","IQ45BACL961447512757450","IS438195278054672813073602","IT82A7879638917I2RCF3V0ZM2W",
+        "JO95MTBQ8611F2H8PD2F9GO64DWKES","KW80JUSV11FMQI0B1GA43HV8NKCK4V","KZ68567ARY9RVP74UP5A","LB0614524DG6R6HJIE27Q4KOVDWQ","LC32CWCLH935JZJI5C78SRP5JW879HDW","LI5619572JP6Z5TGVR0MS","LT478164414733309513","LU23519COA3QCQ6UAK9S","LV77QUUYHM2AM9ZGQ5LYL",
+        "MC426509657012QTVC2404LWH12","MD980C127HWEGJCLKJ8X2FYD","ME92753107624316441002","MK4574625LXGQUX9779","MR6762766970495095294641778","MT88GQIV47519WOQFFFXWH5OQL9MPCA","MU65USLU1656086023066824176ZPF","NL05BEGJ9694051827","NO2431091366443",
+        "PK75RASEREEXSOI428ENAYSJ","PL67526955058889200858865767","PS68BHJUZQ72FWMTC48QUBU8JT8RQ","PT77693451383347314578360","QA68AZSUORX8JO6VAXTTUPM1VSYVA","RO14WEVXH2YNBQQ9WCHRXVUQ","RS14067377404888804490","SA8612YYCCGFWA8LA2AW50XR",
+        "SC86NENG08315757602506778678VVF","SE3744811917217558328936","SI33166388647584194","SK7992529811526047730440","SM42V1626343439TMICRFB4R0EZ","ST07896783411053404784123","SV40ORDQ27862726929082958547","TL277407479946101816469",
+        "TN5713115293410957659500","TR1728531AXG84ELL0GPMIUFVZ","UA82354230YYJY5SMFQ6BHCUXW1PF","VG03SONO9086118580102521","XK246070182276188083","YY03RZIQ015939616CQJYSB9DTOBAT13CY","ZZ84GEQC772206256GCUG5ANE7V3K8VK2J2"
+    ]
+
+-- checks hardcoded ibans and checks whether all are correct
+ibanValidCheck = all (\x -> x == True) [iban x | x <- validIbanNumbers]
+
+-- Takes hardcoded ibans, increments the first occurance of a number by 1 
+-- (making it invalid) and checks wether iban returns False as it should
+ibanInValidCheck = all (\x -> x == False) [iban (inwo x) | x <- validIbanNumbers]
+
+{-
     Can you automate the test process?
     Yes you can generate correct and incorrect iban numbers:
     https://en.wikipedia.org/wiki/International_Bank_Account_Number 
@@ -235,9 +277,10 @@ iban cs = ((read (lettersToIntegers (moveF4ToBack cs)) :: Integer) `mod` 97) == 
     You can increment one ore more numbers with one, since it is a mod 97 
     it will always fail.
 -}
+
 assignment7Report = do
-    print (iban "GB82 WEST 1234 5698 7654 32")
-    print (iban "FR76 3000 6000 0112 3456 7890 189")
+    print ibanValidCheck
+    print ibanInValidCheck
 
 main = do
     assignment1 <- redCurryTest
@@ -246,11 +289,11 @@ main = do
     print "Assignment 2 Triangles"
     print "Asssignment 3 properties strength"
     print propertieStrength
-    print "exercise 4"
+    print "Asssignment 4"
     assignment4Report
-    print "exercise 5"
+    print "Asssignment 5"
     assignment5Report
-    print "exercise 6"
+    print "Asssignment 6"
     assignment6Report
-    print "exercise 7"
+    print "Asssignment 7"
     assignment7Report
