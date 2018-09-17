@@ -181,6 +181,7 @@ rot13LengthTest xs = length xs == length (rot13 xs)
 -- 7 Implementing and testing IBAN validation
 move :: Integer -> [a] -> [a]
 move 0 xs = xs
+move n [] = []
 move n (x:xs) = move (n - 1) xs ++ [x]
 
 todigit :: Char -> [Integer]

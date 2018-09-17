@@ -55,6 +55,8 @@ triangles x y z | x <= 0 || y <= 0 || z <= 0 || (x + y > z) = NoTriangle
 
     TODO: Create test cases for each triangle
 
+    Juffie <3
+
 -}
 
 
@@ -177,8 +179,7 @@ rot13 (x:xs) | x >= 'a' && x < 'n' ||
                x >= 'N' && x <= 'Z' = chr (ord x - 13) : rot13 xs
              | otherwise = x : rot13 xs
 {-
-    Finally, turn the specification into a series of QuickCheck
-    testable properties, and use these to test your implementation.
+    TODO: Explain what we do
 -}
 
 smallAlphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
@@ -190,13 +191,53 @@ rotatedLarge = "NOPQRSTUVWXYZABCDEFGHIJKLM1234567890"
 rot13LengthTest :: String -> Bool
 rot13LengthTest xs = length xs == length (rot13 xs)
 
+rot13Test :: [Char] -> Bool
+rot13Test xs = ((length cs) > 0) && isAlpha (head cs) -->  (rot13 cs) /= cs && (rot13 (rot13 cs)) == cs
+                where cs = show xs
+
 assignment6Report = do
     print (rot13 smallAlphabet == rotatedSmall)
     print (rot13 largeAlphabet == rotatedLarge)
     print (rot13 (rot13 smallAlphabet) == smallAlphabet)
     print (rot13( rot13 largeAlphabet) == largeAlphabet)
     quickCheck rot13LengthTest
+    quickCheck rot13Test
 
+-- 7 Implementing and testing IBAN validation
+
+--move 4 first characters to end of string
+moveF4ToBack :: [Char] -> [Char]
+moveF4ToBack xs = (drop 4 noSpaces) ++ (take 4 noSpaces)
+                where noSpaces = (filter (/=' ') xs)
+
+--replace all letters with numbers a=10,b=11,z=35
+lettersToIntegers :: [Char] -> [Char]
+lettersToIntegers [] = []
+lettersToIntegers (c:cs) = if isUpper c then 
+                                show((ord c - 65) + 10) ++ (lettersToIntegers cs)
+                            else if (isLower c) then 
+                                show((ord c - 97) + 10) ++ (lettersToIntegers cs)
+                            else ([c] ++ (lettersToIntegers cs))
+
+iban :: String -> Bool
+iban cs = ((read (lettersToIntegers (moveF4ToBack cs)) :: Integer) `mod` 97) == 1
+
+
+{-
+    TODO: Meer correcte testcases handmatig toevoegen
+    You should invent a way to test with incorrect examples also.
+
+    Can you automate the test process?
+    Yes you can generate correct and incorrect iban numbers:
+    https://en.wikipedia.org/wiki/International_Bank_Account_Number 
+
+    Incorrect testing: 
+    You can increment one ore more numbers with one, since it is a mod 97 
+    it will always fail.
+-}
+assignment7Report = do
+    print (iban "GB82 WEST 1234 5698 7654 32")
+    print (iban "FR76 3000 6000 0112 3456 7890 189")
 
 main = do
     assignment1 <- redCurryTest
@@ -211,3 +252,5 @@ main = do
     assignment5Report
     print "exercise 6"
     assignment6Report
+    print "exercise 7"
+    assignment7Report
