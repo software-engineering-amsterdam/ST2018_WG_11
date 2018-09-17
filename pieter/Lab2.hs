@@ -140,6 +140,9 @@ checkAllIndices (x:xs) (y:ys) | x == y = False
 isDerangement :: [Integer] -> [Integer] -> Bool
 isDerangement derag orig = elem derag (derangements orig)
 
+-- testDerangements :: [Integer] -> Bool
+-- testDerangements xs = xs 
+
 --TODO tests and test properties
 
 -- exercise 6
@@ -159,6 +162,9 @@ rot13 cs = [if isUpper c then
             else c | c <- cs]
 
 -- TODO quickcheck properties
+
+rot13Test :: [Char] -> Bool
+rot13Test cs = ((length cs) > 0) && isAlpha (cs !! 0) -->  (rot13 cs) /= cs && (rot13 (rot13 cs)) == cs
 
 -- exercise 7
 -- TODO still needs to check for length of iban string (think of spaces)
@@ -203,6 +209,7 @@ main = do
     print (permutations [0,1,2])
     print (deran 3)
     print (isDerangement [1,0,2] [0,1,2])
+    print (isDerangement [1,2,3] [3,1,2])
     print "exercise 6"
     print ([ord x | x <- smallAlphabet])
     print ([ord x | x <- largeAlphabet])
@@ -210,6 +217,7 @@ main = do
     print (rot13( rot13 largeAlphabet))
     print "exercise 7"
     print (iban "GB82 WEST 1234 5698 7654 32")
+    quickCheck rot13Test
 
     
 
