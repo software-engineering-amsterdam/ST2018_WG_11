@@ -98,6 +98,7 @@ propertieStrength = sortTest testList
 -- 4 Recognizing Permutations
 
 remElem :: Eq a => a -> [a] -> [a]
+remElem x [] = []
 remElem x (y:ys) | x == y = ys
                  | otherwise = y : remElem x ys
 
