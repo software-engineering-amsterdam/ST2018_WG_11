@@ -102,17 +102,100 @@ testPermutations :: Eq a => [a] -> Bool
 testPermutations xs = (length xs < 8) --> all (\ys -> isPermutation ys xs) (permutations xs)
 -- limit because the size of permutations can get very large
 
-hoareTest :: (a -> Bool) -> (a -> a) -> (a -> Bool) -> [a] -> Bool
-hoareTest precondition f postcondition = all (\x -> precondition x --> postcondition (f x))
+-- if ys is an element of the permutations of xs then this implies that
+-- our function isPermutation must also be True
+hoareTest :: Eq a => [a] -> [a] -> Bool
+hoareTest xs ys = (elem ys (permutations xs)) --> isPermutation xs ys
 
--- precondition = \x y -> isPermutation y x
 
--- hoareTest original perm = isPermutation original perm --> elem perm (permutations original)
--- domein = [[x | x <- [0..y]]| y <- [0..10]--
---hoareTest precondition permutations postcondition [0..100]
+{-
+    TODO: TESTREPORT
 
-hoareTest isPermutation permutations elem [([1,2,3], [3,2,1])]
+    below example
+-}
 
+assignment4Report = do
+    quickCheck (testPermutations :: [Int] -> Bool)
+    print (hoareTest [1,2,3] [3,2,1])
+    print (hoareTest [1,2,3] [3,3,3])
+
+
+-- 5 Recognizing and generating derangements
+
+-- Create derangements
+derangements :: [Integer] -> [[Integer]]
+derangements xs = [x | x <- permutations xs, checkAllIndices x xs]
+
+-- Check if a given (valid) permutation is a derangement
+checkAllIndices :: [Integer] -> [Integer] -> Bool
+checkAllIndices [] [] = True
+checkAllIndices [] _ = False
+checkAllIndices _ [] = False
+checkAllIndices (x:xs) (y:ys) | x == y = False
+                              | otherwise = checkAllIndices xs ys
+
+-- Checks is orig is a derangement of derag
+isDerangement :: [Integer] -> [Integer] -> Bool
+isDerangement derag orig = elem derag (derangements orig)
+
+-- Throw all perms out where one of it's indices matches the original
+deran :: Integer -> [[Integer]]
+deran n = [x | x <- permutations [0..n-1],checkAllIndices x [0..n-1]]
+
+
+{-
+    TODO: TESTREPORT
+
+    below example
+-}
+
+{-
+    src: https://en.wikipedia.org/wiki/Derangement#Computational_complexity 
+    Starting with n = 0, the numbers of derangements of n are:
+
+    1, 0, 1, 2, 9, 44, 265, 1854, 14833, 133496, 1334961, 
+    14684570, 176214841, 2290792932, ... 
+-}
+
+deranTest :: Bool
+deranTest = length (deran 4) == 9 && length (deran 5) == 44 && 
+            length (deran 6) == 265 && length (deran 7) == 1854 &&
+            length (deran 8) == 14833
+
+assignment5Report = do
+    print deranTest
+
+
+-- 6 Implementing and testing ROT13 encoding
+
+
+rot13 :: String -> String
+rot13 [] = []
+rot13 (x:xs) | x >= 'a' && x < 'n' ||
+               x >= 'A' && x < 'N' = chr (ord x + 13) : rot13 xs
+             | x >= 'n' && x <= 'z' ||
+               x >= 'N' && x <= 'Z' = chr (ord x - 13) : rot13 xs
+             | otherwise = x : rot13 xs
+{-
+    Finally, turn the specification into a series of QuickCheck
+    testable properties, and use these to test your implementation.
+-}
+
+smallAlphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
+largeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+rotatedSmall = "nopqrstuvwxyzabcdefghijklm1234567890"
+rotatedLarge = "NOPQRSTUVWXYZABCDEFGHIJKLM1234567890"
+
+rot13LengthTest :: String -> Bool
+rot13LengthTest xs = length xs == length (rot13 xs)
+
+assignment6Report = do
+    print (rot13 smallAlphabet == rotatedSmall)
+    print (rot13 largeAlphabet == rotatedLarge)
+    print (rot13 (rot13 smallAlphabet) == smallAlphabet)
+    print (rot13( rot13 largeAlphabet) == largeAlphabet)
+    quickCheck rot13LengthTest
 
 
 main = do
@@ -123,4 +206,8 @@ main = do
     print "Asssignment 3 properties strength"
     print propertieStrength
     print "exercise 4"
-    quickCheck (testPermutations :: [Int] -> Bool)
+    assignment4Report
+    print "exercise 5"
+    assignment5Report
+    print "exercise 6"
+    assignment6Report

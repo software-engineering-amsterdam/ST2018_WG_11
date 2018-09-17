@@ -126,7 +126,7 @@ isDerangement [] x = False
 isDerangement x [] = False
 isDerangement (x:xs) (y:ys) = x /= y && isDerangement xs ys
 {-
-    Doesn't test if elements are double in the list
+    Doesn't test if elements are double in the list or exist at all
 -}
 
 deran :: Integer ->  [[Integer]]
@@ -145,6 +145,8 @@ deran n = [x| x <- (permutations [0..(n-1)]),
     1, 0, 1, 2, 9, 44, 265, 1854, 14833, 133496, 1334961, 
     14684570, 176214841, 2290792932, ... 
 -}
+
+deranTest :: Bool
 deranTest = length (deran 4) == 9 && length (deran 5) == 44 && 
             length (deran 6) == 265 && length (deran 7) == 1854 &&
             length (deran 8) == 14833
