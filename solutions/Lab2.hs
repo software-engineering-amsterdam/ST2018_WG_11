@@ -151,13 +151,6 @@ testPermutations xs = (length xs < 8) --> all (\ys -> isPermutation ys xs) (perm
 hoareTest :: Eq a => [a] -> [a] -> Bool
 hoareTest xs ys = (elem ys (permutations xs)) --> isPermutation xs ys
 
-
-{-
-    TODO: TESTREPORT
-
-    below example
--}
-
 assignment4Report = do
     quickCheck (testPermutations :: [Int] -> Bool)
     print (hoareTest [1,2,3] [3,2,1])
