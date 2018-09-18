@@ -77,8 +77,8 @@ testRectangular (Positive x) (Positive y) (Positive z) = ((z ^ 2) + (y ^ 2) == (
 
 {- 
 A triangle with the properties (a + 1) (b + 2) (a + b + 2) create 'Other' triangles,
-as they cannot be placed in the other cases, as long as a is the smallest number and
-b is the greater number 
+as they cannot be placed in the other cases, but still is a triangle
+(as long as a is the smallest number and b is the greater number)
 -}
 testOther :: (Positive Integer) -> (Positive Integer) -> Bool
 testOther (Positive x) (Positive y) = let a = minimum[x,y]
@@ -87,11 +87,11 @@ testOther (Positive x) (Positive y) = let a = minimum[x,y]
 
 {-
 The tests use most of the same functions as the function. This means that the domain we're testing in
-is already expected to be the same as the domain of the formula. This makes verifying hard(er) in this
+is already expected to be (and restricted to!) the same as the domain of the formula. This makes verifying hard(er) in this
 case. It does test if it holds for the cases within that specific domain (via quickCheck). The test
 cases are reduced because of the restrictions in quickCheck. 
 
-TODO: iets minder cryptisch uitleggen :')
+TODO: iets minder cryptisch uitleggen? :')
  -}
 
 
@@ -321,7 +321,7 @@ main = do
     assignment1 <- redCurryTest
     print "Assignment 1 red curry"
     print assignment1
-
+    
     print "Assignment 2 Triangles"
     print "Checking Equilateral Triangles"
     quickCheck testEquilateral
