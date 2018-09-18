@@ -36,7 +36,7 @@ redCurryTest = do list <- probs 10000
 
       Running the test a few times I can see that it differs every
       time with around ~50 in eacht quartile. The random generator
-      seems to be working fine. I do not pocces enough calculation 
+      seems to be working fine. I do not procces enough calculation 
       power to test my first hypothosis.
 -}
 
@@ -120,6 +120,9 @@ assignment4Report = do
     quickCheck (testPermutations :: [Int] -> Bool)
     print (hoareTest [1,2,3] [3,2,1])
     print (hoareTest [1,2,3] [3,3,3])
+    print (hoareTest [1,2,3] [4,3,2,1])
+    print (hoareTest [1,2,3,5] [4,3,2,1])
+    print (hoareTest [1,2,3,3] [3,2,1])
 
 
 -- 5 Recognizing and generating derangements
@@ -146,26 +149,32 @@ deran n = [x | x <- permutations [0..n-1],checkAllIndices x [0..n-1]]
 
 
 {-
-    TODO: TESTREPORT
+    To number of derangements should be equal to the subfactorial of the number n.
+    This counts when the list is [0..n].
 
-    below example
+    For computing purposes the pre condition check if the list is not too long
+    The function to be test should be the deran function
+    The post contition should test for the above mentioned property.
+
+    For the isDerangement function I do not see an extra test function
+    https://en.wikipedia.org/wiki/Derangement -> section "Counting derangements"
 -}
 
-{-
-    src: https://en.wikipedia.org/wiki/Derangement#Computational_complexity 
-    Starting with n = 0, the numbers of derangements of n are:
+-- https://rosettacode.org/wiki/Permutations/Derangements#Haskell
+subfactorial :: Integer -> Integer
+subfactorial 0 = 1
+subfactorial 1 = 0
+subfactorial n = (n - 1) * (subfactorial (n - 1) + subfactorial (n - 2))
 
-    1, 0, 1, 2, 9, 44, 265, 1854, 14833, 133496, 1334961, 
-    14684570, 176214841, 2290792932, ... 
--}
+testDerangements :: (Integer -> Bool) -> (Integer->[[Integer]]) -> ([[Integer]] -> Integer-> Bool) -> [Integer] -> Bool
+testDerangements _ _ _ [] = True
+testDerangements precondition f postcondition (n:ns) = precondition n --> (if (postcondition (f n) n) then (testDerangements precondition f postcondition ns) else False)
 
-deranTest :: Bool
-deranTest = length (deran 4) == 9 && length (deran 5) == 44 && 
-            length (deran 6) == 265 && length (deran 7) == 1854 &&
-            length (deran 8) == 14833
+checkDerangements :: Integer -> Bool
+checkDerangements len = testDerangements (\x -> x < 8) deran (\ xs n -> (toInteger (length xs)) == subfactorial n) [0..len]
 
 assignment5Report = do
-    print deranTest
+    quickCheck checkDerangements
 
 
 -- 6 Implementing and testing ROT13 encoding
