@@ -41,23 +41,58 @@ redCurryTest = do list <- probs 10000
 -}
 
 -- 2 Recognizing triangles
+triangle :: Integer -> Integer -> Integer -> Shape
+triangle x y z
+    | x + y < z || y + z < x || x + z < y = NoTriangle
+    | x == y && y == z = Equilateral
+    | (x ^ 2) + (y ^ 2) == (z ^ 2) = Rectangular
+    | x == y || x == z || y == z = Isosceles
+    | otherwise = Other
 
-triangles :: Integer -> Integer -> Integer -> Shape
-triangles x y z | x <= 0 || y <= 0 || z <= 0 || (x + y > z) = NoTriangle
-                | x == y && y == z = Equilateral
-                | x ^ 2 + y ^ 2 == z ^ 2 ||
-                  x ^ 2 + z ^ 2 == y ^ 2 ||
-                  z ^ 2 + y ^ 2 == x ^ 2 = Rectangular
-                | x == y || y == z || x == z = Isosceles
-                | otherwise = Other
+-- Three different NoTriangle cases
+testNoTriangle1 :: (Positive Integer) -> (Positive Integer) -> (Positive Integer) -> Bool
+testNoTriangle1 (Positive x) (Positive y) (Positive z) = (x + y < z) --> triangle x y z == NoTriangle
+
+testNoTriangle2 :: (Positive Integer) -> (Positive Integer) -> (Positive Integer) -> Bool
+testNoTriangle2 (Positive x) (Positive y) (Positive z) = (y + z < x) --> triangle x y z == NoTriangle
+
+testNoTriangle3 :: (Positive Integer) -> (Positive Integer) -> (Positive Integer) -> Bool
+testNoTriangle3 (Positive x) (Positive y) (Positive z) = (x + z < y) --> triangle x y z == NoTriangle
+
+testEquilateral :: (Positive Integer) -> Bool
+testEquilateral (Positive x) = triangle x x x == Equilateral
+
+-- Three different Isosceles cases: (x x y) (x y x) (y x x)
+testIsosceles1 :: (Positive Integer) -> (Positive Integer) -> Bool
+testIsosceles1 (Positive x) (Positive y) = (x /= y && 2 * x >= y) --> triangle x x y == Isosceles
+
+testIsosceles2 :: (Positive Integer) -> (Positive Integer) -> Bool
+testIsosceles2 (Positive x) (Positive y) = (x /= y && 2 * x >= y) --> triangle x y x == Isosceles
+
+testIsosceles3 :: (Positive Integer) -> (Positive Integer) -> Bool
+testIsosceles3 (Positive x) (Positive y) = (x /= y && 2 * x >= y) --> triangle y x x == Isosceles
+
+testRectangular :: (Positive Integer) -> (Positive Integer) -> (Positive Integer) -> Bool
+testRectangular (Positive x) (Positive y) (Positive z) = ((z ^ 2) + (y ^ 2) == (x ^ 2)) --> triangle x y z == Rectangular
+
+{- 
+A triangle with the properties (a + 1) (b + 2) (a + b + 2) create 'Other' triangles,
+as they cannot be placed in the other cases, as long as a is the smallest number and
+b is the greater number 
+-}
+testOther :: (Positive Integer) -> (Positive Integer) -> Bool
+testOther (Positive x) (Positive y) = let a = minimum[x,y]
+                                          b = maximum[x,y]
+                                      in (triangle (a + 1) (b + 2) (a + b + 2) == Other)
 
 {-
+The tests use most of the same functions as the function. This means that the domain we're testing in
+is already expected to be the same as the domain of the formula. This makes verifying hard(er) in this
+case. It does test if it holds for the cases within that specific domain (via quickCheck). The test
+cases are reduced because of the restrictions in quickCheck. 
 
-    TODO: Create test cases for each triangle
-
-    Juffie <3
-
--}
+TODO: iets minder cryptisch uitleggen :')
+ -}
 
 
 -- 3 Testing properties strength
@@ -274,7 +309,7 @@ ibanInValidCheck = all (\x -> x == False) [iban (inwo x) | x <- validIbanNumbers
     https://en.wikipedia.org/wiki/International_Bank_Account_Number 
 
     Incorrect testing: 
-    You can increment one ore more numbers with one, since it is a mod 97 
+    You can increment one or more numbers with one, since it is a mod 97 
     it will always fail.
 -}
 
@@ -286,7 +321,33 @@ main = do
     assignment1 <- redCurryTest
     print "Assignment 1 red curry"
     print assignment1
+
     print "Assignment 2 Triangles"
+    print "Checking Equilateral Triangles"
+    quickCheck testEquilateral
+
+    print "Checking Three Isosceles Triangle Cases"
+    print "case1: x == y"
+    quickCheck testIsosceles1
+    print "case2: x == z"
+    quickCheck testIsosceles2
+    print "case3: y == z"
+    quickCheck testIsosceles3
+
+    print "Checking Rectangular Triangles"
+    quickCheck testRectangular
+
+    print "Checking Other Triangles"
+    quickCheck testOther
+
+    print "Checking Three NoTriangle Cases"
+    print "case1: x + y < z"
+    quickCheck testNoTriangle1
+    print "case1: y + z < x"
+    quickCheck testNoTriangle2
+    print "case1: x + z < y"
+    quickCheck testNoTriangle3
+
     print "Asssignment 3 properties strength"
     print propertieStrength
     print "Asssignment 4 Recognizing Permutations"
