@@ -289,11 +289,11 @@ main = do
     print "Assignment 2 Triangles"
     print "Asssignment 3 properties strength"
     print propertieStrength
-    print "Asssignment 4"
+    print "Asssignment 4 Recognizing Permutations"
     assignment4Report
-    print "Asssignment 5"
+    print "Asssignment 5 Recognizing and generating derangements"
     assignment5Report
-    print "Asssignment 6"
+    print "Asssignment 6 Implementing and testing ROT13 encoding"
     assignment6Report
-    print "Asssignment 7"
+    print "Asssignment 7 Implementing and testing IBAN validation"
     assignment7Report
