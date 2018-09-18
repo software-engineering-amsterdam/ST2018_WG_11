@@ -45,7 +45,7 @@ triangle :: Integer -> Integer -> Integer -> Shape
 triangle x y z
     | x + y < z || y + z < x || x + z < y = NoTriangle
     | x == y && y == z = Equilateral
-    | (x ^ 2) + (y ^ 2) == (z ^ 2) = Rectangular
+    | (x ^ 2) + (y ^ 2) == (z ^ 2) ||  (x ^ 2) + (z ^ 2) == (y ^ 2) ||  (z ^ 2) + (y ^ 2) == (z ^ 2)  = Rectangular
     | x == y || x == z || y == z = Isosceles
     | otherwise = Other
 
@@ -72,9 +72,16 @@ testIsosceles2 (Positive x) (Positive y) = (x /= y && 2 * x >= y) --> triangle x
 testIsosceles3 :: (Positive Integer) -> (Positive Integer) -> Bool
 testIsosceles3 (Positive x) (Positive y) = (x /= y && 2 * x >= y) --> triangle y x x == Isosceles
 
-testRectangular :: (Positive Integer) -> (Positive Integer) -> (Positive Integer) -> Bool
-testRectangular (Positive x) (Positive y) (Positive z) = ((z ^ 2) + (y ^ 2) == (x ^ 2)) --> triangle x y z == Rectangular
+-- Pythagorean triangles
+-- src: https://en.wikipedia.org/wiki/Integer_triangle#Angles_of_an_integer_triangle 
+testRectangular1 :: (Positive Integer) -> (Positive Integer) -> Bool
+testRectangular1 (Positive x) (Positive y) = (x > y) --> triangle (x^2 - y^2) (2 * x * y) (x^2 + y^2) == Rectangular
 
+testRectangular2 :: (Positive Integer) -> (Positive Integer) -> Bool
+testRectangular2 (Positive x) (Positive y) = (x > y) --> triangle (x^2 - y^2) (x^2 + y^2) (2 * x * y) == Rectangular
+
+testRectangular3 :: (Positive Integer) -> (Positive Integer) -> Bool
+testRectangular3 (Positive x) (Positive y) = (x > y) --> triangle (2 * x * y) (x^2 + y^2) (x^2 - y^2) == Rectangular
 {- 
 A triangle with the properties (a + 1) (b + 2) (a + b + 2) create 'Other' triangles,
 as they cannot be placed in the other cases, but still is a triangle
@@ -334,8 +341,10 @@ main = do
     print "case3: y == z"
     quickCheck testIsosceles3
 
-    print "Checking Rectangular Triangles"
-    quickCheck testRectangular
+    print "Checking Three Rectangular Triangle Cases"
+    quickCheck testRectangular1
+    quickCheck testRectangular2
+    quickCheck testRectangular3
 
     print "Checking Other Triangles"
     quickCheck testOther
