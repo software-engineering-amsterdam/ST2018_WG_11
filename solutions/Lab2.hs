@@ -31,13 +31,13 @@ redCurryTest = do list <- probs 10000
                           length [x | x <- list, x >= 0.75 && x < 1]])
 
 {-
-      Since it is an open interval; (0..1). I would expect the
+      Since it is an open interval (0..1) you would expect the
       first and last list to contain less items.
 
-      Running the test a few times I can see that it differs every
-      time with around ~50 in eacht quartile. The random generator
-      seems to be working fine. I do not procces enough calculation 
-      power to test my first hypothosis.
+      Running the test a few times you can see that it differs every
+      time with around ~50 in each quartile. The random generator
+      seems to be working fine. We do not process enough calculation 
+      power to test the first hypothosis.
 -}
 
 -- 2 Recognizing triangles
@@ -93,16 +93,15 @@ testOther (Positive x) (Positive y) = let a = minimum[x,y]
                                       in (triangle (a + 1) (b + 2) (a + b + 2) == Other)
 
 {-
-The tests use most of the same functions as the function. This means that the domain we're testing in
-is already expected to be (and restricted to!) the same as the domain of the formula. This makes verifying hard(er) in this
-case. It does test if it holds for the cases within that specific domain (via quickCheck). The test
-cases are reduced because of the restrictions in quickCheck. 
-
-TODO: iets minder cryptisch uitleggen? :')
+    The tests use a lot of the same formulas as the triangle function. This means that the domain we're testing in
+    is already expected to be (and restricted to!) the same as the domain of the formula. This makes verifying hard(er) in this
+    case. It does test if it holds for the cases within that specific domain (via quickCheck). The test
+    cases in quickCheck are essentially  reduced because of the restrictions. 
  -}
 
 
 -- 3 Testing properties strength
+
 forall :: [a] -> (a -> Bool) -> Bool
 forall = flip all
 
