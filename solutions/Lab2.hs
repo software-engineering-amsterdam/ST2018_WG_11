@@ -342,8 +342,11 @@ main = do
     quickCheck testIsosceles3
 
     print "Checking Three Rectangular Triangle Cases"
+    print "case1: (x ^ 2) + (y ^ 2) == (z ^ 2)"
     quickCheck testRectangular1
+    print "case2: (x ^ 2) + (z ^ 2) == (y ^ 2)"
     quickCheck testRectangular2
+    print "case3: (z ^ 2) + (y ^ 2) == (z ^ 2)"
     quickCheck testRectangular3
 
     print "Checking Other Triangles"
