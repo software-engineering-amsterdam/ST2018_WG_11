@@ -33,7 +33,7 @@ counting = do output <- probs 100000
                       -- are in each quartile
 
 
--- 2. Recognizing triangles (10:45) - Time: 
+-- 2. Recognizing triangles - Time: 120 min? Not sure..
 triangle :: Integer -> Integer -> Integer -> Shape
 triangle x y z
     | x + y < z || y + z < x || x + z < y = NoTriangle
@@ -116,30 +116,26 @@ forall = flip all
 stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 stronger xs p q = forall xs (\x -> p x --> q x)
 weaker   xs p q = stronger xs q p 
-
--- part a
-test1, test2, test3 :: Int -> Bool
-test1 = \x -> even x && x > 3
-test2 = \x -> even x || x > 3
-test3 = \x -> (even x && x > 3) || even x
-
 -- usage; stronger [-10..10] test2 test3
 --        weaker [-10..10] test2 test3
 
+-- part a
+test1, test2, test3, test4 :: Int -> Bool
+test1 = \x -> even x && x > 3
+test2 = \x -> even x || x > 3
+test3 = \x -> (even x && x > 3) || even x
+test4 = even
+
 -- part b
--- sortStrength :: [Int -> Bool] -> [Int -> Bool]
--- sortStrength [] = []
--- sortStrength [x] = [x]
--- sortStrength (x:y:xs) = if stronger [-10..10] x y then x:(sortStrength (y:xs)) else y:(sortStrength (x:xs))
-
 -- QUICKSORT GEBRUIKEN?
+sortProp [] = []
+sortProp ((f,name):xs) = sortProp [(f1,n1) | (f1, n1) <- xs, stronger [-10..10] f1 f]
+                            ++ [name] ++ 
+                            sortProp [(f1,n1) | (f1, n1) <- xs, not (stronger [-10..10] f1 f)]
 
--- quicksort [] = []
--- quicksort (p:xs) = (quicksort lesser) ++ [p] ++ (quicksort greater)
---     where
---         lesser = filter (< p) xs
---         greater = filter (>= p) xs
+testList = [(test1,"even x && x > 3"), (test2, "even x || x > 3"), (test3, "(even x && x > 3) || even x"), (test4,"even")]
 
+sortedStrength = sortProp testList
 
 
 -- 4. Recognizing Permutations
@@ -159,6 +155,31 @@ isPermutation xs xt = elem xt (permutations xs)
 -- 5. Recognizing and generating derangements
 
 -- 6. Implementing and testing ROT13 encoding
+{- 
+    rot13 is an algorihm that takes a string and rotes it with a difference
+    of 13 characters.
+-}
+
+rot13 :: String -> String
+rot13 [] = []
+rot13 (x:xs) | x >= 'a' && x < 'n' ||
+               x >= 'A' && x < 'N' = chr (ord x + 13) : rot13 xs
+             | x >= 'n' && x <= 'z' ||
+               x >= 'N' && x <= 'Z' = chr (ord x - 13) : rot13 xs
+             | otherwise = x : rot13 xs
+
+-- hardcoded tests
+smallAlpha = "abcdefghijklmnopqrstuvwxyz1234567890"
+largeAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+rotatedSmall = "nopqrstuvwxyzabcdefghijklm1234567890"
+rotatedLarge = "NOPQRSTUVWXYZABCDEFGHIJKLM1234567890"
+
+rot13LengthTest :: String -> Bool
+rot13LengthTest xs = length xs == length (rot13 xs)
+
+rot13Test :: String -> Bool
+rot13Test xs = ((length cs) > 0) && isAlpha (head cs) -->  (rot13 cs) /= cs && (rot13 (rot13 cs)) == cs
+                where cs = show xs
 
 -- 7. Implementing and testing IBAN validation
 
@@ -193,4 +214,8 @@ main = do
         quickCheck testNoTriangle2
         print "case1: x + z < y"
         quickCheck testNoTriangle3
+
+        -- print "Exercise 3"
+        -- sortedStrength
+
 
