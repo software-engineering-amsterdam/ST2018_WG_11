@@ -197,6 +197,31 @@ assignment3 = do
     print (cnf form2 == (cnf (cnf form2)))
     print (cnf form3 == (cnf (cnf form3)))
 
+
+-- Exercise 4
+--https://www.stackbuilders.com/news/a-quickcheck-tutorial-generators
+--https://www.fpcomplete.com/blog/2017/01/quickcheck
+-- generate arbitrary :: IO Form
+instance Arbitrary Form where
+    -- arbitrary :: Gen Form
+    arbitrary = do
+        n_operators <- choose(1,10)
+        -- arr <- [(Prop x) | x <- [0..n_operators]]
+        -- oneof [return Prop x, return Neg ]
+        --make an array of n operators
+        --then choose a operator for each array index
+        --generate random atom around the operators
+        --randomly make the atom negative.
+        return (Cnj [Prop n_operators,Prop 1])
+
+
+
+-- genForm :: Gen Form
+-- genForm = Cnj [Prop (choose (1,10)),Prop (choose (1,10))]
+-- class Arbitrary a where
+--     arbitrary :: Gen a
+
+
 main = do
     assignment1
     print "exercise 2"
