@@ -34,6 +34,28 @@ entails frm1 frm2 = all (\x -> (evl x frm1) --> (evl x frm2)) vals
 equiv :: Form -> Form -> Bool
 equiv frm1 frm2 = (entails frm1 frm2) && (entails frm2 frm1)
 
+assignment1 = do
+    print "exercise 1"
+    print "satis"
+    print (satisfiable form1)
+    print (satisfiable form2)
+    print (satisfiable form3)
+    print "taut"
+    print (tautology form1)
+    print (tautology form2)
+    print (tautology form3)
+    print "contr"
+    print (contradiction form1)
+    print (contradiction form2)
+    print (contradiction form3)
+    print "entails"
+    print (entails form1 form2)
+    print (entails form2 form3)
+    print (entails form3 form1)
+    print "equivalence (should all be False)"
+    print (equiv form1 form2)
+    print (equiv form2 form3)
+    print (equiv form3 form1)
 
 -- exercise 2 120 minutes
 tests = ["*(1 2)","+(2 3)","(2<=>3)","*((2<=>1) 3)"]
@@ -43,7 +65,7 @@ tests = ["*(1 2)","+(2 3)","(2<=>3)","*((2<=>1) 3)"]
 --een array met tuples van alle inputs met verwachte output
 --een functie die al die shit test
 
--- exercise 3
+-- exercise 3 (200 minutes)
 
 -- arrowfree :: Form -> Form 
 -- arrowfree (Prop x) = Prop x 
@@ -87,20 +109,32 @@ strictCnf (Neg x)                  = Neg (strictCnf x)
 strictCnf (Cnj (x:[])) = x
 strictCnf (Dsj (x:[])) = x
 
+
+
 --put disjunction and conjunction in the front
-strictCnf (Dsj (z:Cnj [x,y]:[])) = Dsj [strictCnf (Cnj [x,y]),strictCnf z]
-strictCnf (Cnj (z:Dsj [x,y]:[])) = Cnj [strictCnf (Dsj [x,y]),strictCnf z]
+-- strictCnf (Dsj (z:Cnj [x,y]:[])) = Dsj [strictCnf (Cnj [x,y]),strictCnf z]
+-- strictCnf (Cnj (z:Dsj [x,y]:[])) = Cnj [strictCnf (Dsj [x,y]),strictCnf z]
+
+-- strictCnf (Dsj (Cnj (a:b:bs):y:ys)) = Cnj [Dsj [y,a], Dsj [y,b]]
 
 --only rewrite if its (p v (q ^ r))
-strictCnf (Dsj ((Cnj (x:y:[])):z:[])) = Cnj [strictCnf (Dsj [z,x]),strictCnf (Dsj [z,y])]
-strictCnf (Cnj ((Dsj (x:y:[])):z:[])) = Cnj [Dsj [x,y],z]
--- strictCnf (Cnj ((Dsj (x:y:[])):z:[])) = Dsj [strictCnf (Cnj [z,x]),strictCnf (Cnj [z,y])]
+-- strictCnf (Dsj ((Cnj (x:y:[])):z:[])) = Cnj [strictCnf (Dsj [z,x]),strictCnf (Dsj [z,y])]
+-- --already correct
+-- strictCnf (Cnj ((Dsj (x:y:[])):z:[])) = Cnj [Dsj [x,y],z]
+-- -- strictCnf (Cnj ((Dsj (x:y:[])):z:[])) = Dsj [strictCnf (Cnj [z,x]),strictCnf (Cnj [z,y])]
+
+
+strictCnf (Dsj [Cnj [x,y],z]) = Cnj [strictCnf(Dsj [z,x]),strictCnf(Dsj [z,y])]
+strictCnf (Dsj [z, Cnj[x,y]]) = Cnj [strictCnf(Dsj [z,x]),strictCnf(Dsj [z,y])]
+
+strictCnf (Dsj xs) = Dsj (map strictCnf xs)
+strictCnf (Cnj xs) = Cnj (map strictCnf xs)
 
 --if a conjunction or disjunction has more than 2 arguments split it
-strictCnf (Cnj (x:xs)) | (length xs) > 1 = Cnj [strictCnf x,strictCnf(Cnj xs)]
-                       | otherwise = Cnj (map strictCnf (x:xs))
-strictCnf (Dsj (x:xs)) | (length xs) > 1 = Dsj [strictCnf x,strictCnf(Dsj xs)]
-                       | otherwise = Dsj (map strictCnf (x:xs))
+-- strictCnf (Cnj (x:xs)) | (length xs) > 1 = Cnj [strictCnf x,strictCnf(Cnj xs)]
+--                        | otherwise = Cnj (map strictCnf (x:xs))
+-- strictCnf (Dsj (x:xs)) | (length xs) > 1 = Dsj [strictCnf x,strictCnf(Dsj xs)]
+--                        | otherwise = Dsj (map strictCnf (x:xs))
 
 
 -- strictCnf Dsj(x:Cnj(y:ys)) = Cnj [Dsj [x,y],Dsj [x,ys]]
@@ -108,9 +142,10 @@ strictCnf (Dsj (x:xs)) | (length xs) > 1 = Dsj [strictCnf x,strictCnf(Dsj xs)]
 
 -- By enforcing that all the conjunction and disjunctions are in pair and not more we
 -- can ensure that the form p v (q ^ r) is always true
+-- If we dont this the functions crashed on inputs like Cnj [p,q,r]
 toPairs :: Form -> Form
 toPairs (Prop x) = Prop x
-toPairs (Neg f) = Neg (toPairs f)
+toPairs (Neg x) = Neg (toPairs x)
 toPairs (Cnj (x:[])) = toPairs x
 toPairs (Cnj (x:xs)) | (length xs) > 1 = Cnj [toPairs x,toPairs(Cnj xs)]
                      | otherwise = Cnj (map toPairs (x:xs))
@@ -119,36 +154,51 @@ toPairs (Dsj (x:xs)) | (length xs) > 1 = Dsj [toPairs x,toPairs(Dsj xs)]
                      | otherwise = Dsj (map toPairs (x:xs))
 
 
-testData = Dsj [p,Cnj [p,q,r],Dsj [p]]
+td1 = Dsj [p,Cnj [p,q,r],Dsj [p]]
+td2 = Cnj [p, Dsj [p,q,r], Cnj [p]]
 
 -- test :: Form -> Form
 -- test = toPairs . nnf . arrowfree
 
+-- just reapplying untill it is in the correct format is key.
+-- if we do this we just look for the pattern
+-- when not doing this the algorithm isnt that good in circling back up
+-- so one you replace something in the 'bottom' the 'top' of the tree needs
+-- to be computed again
 cnf :: Form -> Form
-cnf = strictCnf . nnf . arrowfree
+cnf frm = while (not . isCnf) strictCnf inp
+      where inp = toPairs (nnf (arrowfree frm))
 
+-- Check if the function is in cnf form.
+isCnf :: Form -> Bool
+isCnf (Prop x) = True
+isCnf (Neg (Prop x)) = True
+isCnf (Neg _) = False
+isCnf (Dsj xs) = not (any isCnj xs) && (all (==True) (map isCnf xs))
+isCnf (Cnj xs) = all (==True) (map isCnf xs)
+isCnf (Impl x y) = False
+isCnf (Equiv x y) = False
+
+-- Because appearantly we cant do list comprehension and do ==Cnj we add this fucntion.
+isCnj :: Form -> Bool
+isCnj (Cnj xs) = True
+isCnj _ = False
+
+assignment3 = do
+    print "exercise 3"
+    print "Check equivalence with original"
+    print (equiv (cnf form1) form1)
+    print (equiv (cnf form2) form2)
+    print (equiv (cnf form3) form3)
+    print (equiv (cnf td1) td1)
+    print (equiv (cnf td2) td2)
+    print "reapplying cnf on an already cnf should do nothing"
+    print (cnf form1 == (cnf (cnf form1)))
+    print (cnf form2 == (cnf (cnf form2)))
+    print (cnf form3 == (cnf (cnf form3)))
 
 main = do
-    print "exercise 1"
-    print "satis"
-    print (satisfiable form1)
-    print (satisfiable form2)
-    print (satisfiable form3)
-    print "taut"
-    print (tautology form1)
-    print (tautology form2)
-    print (tautology form3)
-    print "contr"
-    print (contradiction form1)
-    print (contradiction form2)
-    print (contradiction form3)
-    print "entails"
-    print (entails form1 form2)
-    print (entails form2 form3)
-    print (entails form3 form1)
-    print "equiv"
-    print (equiv form1 form2)
-    print (equiv form2 form3)
-    print (equiv form3 form1)
+    assignment1
     print "exercise 2"
     print ([parse x | x <- tests])
+    assignment3
