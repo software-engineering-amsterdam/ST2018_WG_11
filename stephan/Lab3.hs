@@ -82,10 +82,31 @@ weirdParse = "+(1 1) asfsajfsdjklafndsa ()(#(#$&#@^&$(@#*()_)!_!__!@*!@_+!"
 -- Parse has max number
 parseLarge = "(1 ==> 999999999999999999999999)"
 
+-- (p ^ (q v r) ^ r2)
+testCnjDsj = parse "*(1 +(2 3) 4)" !! 0
+
 parseArrows = ["(1 ==> 2)", "+((1 ==> 2) 3 (3 <=> 3))"]
 
+-- Automated tests
+
+{-
+    When you create a Form from a string, show it and parse it again
+    it should give the same result.
+
+    Should always return True or give unkown token error.
+-}
+testParseString :: String -> Bool
+testParseString x = (length (parse x) > 0) --> (parse x) 
+                        == (parse (show (head (parse x))))
+
+{-
+    Should always return True
+-}                    
+testParseForm :: Form -> Bool
+testParseForm x = head (parse (show x)) == x
+
 assignment2 = do
-    print "Assignment 2"
+    print "Assignment 2 - manual testing"
     print (parse parseTautP !! 0 == tautP)
     print (parse parseTautQ !! 0 == tautQ)
     print (parse parseConjP !! 0 == conjP)
@@ -101,8 +122,72 @@ assignment2 = do
     print ("You have a max number to parse: " ++ parseLarge)
     print (parse parseLarge)
     print ([parse x !! 0 | x <- parseArrows])
+    print (allVals testCnjDsj)
+    print (map (flip evl testCnjDsj) (allVals testCnjDsj))
+    print "assingment 2 - functionable testing"
+    print (all (\x -> testParseString x) [parseTautP,parseTautQ,parseConjP,parseConjQ])
+    print (all (\x -> testParseForm x) [tautP,tautQ, conjP,conjQ])
+
+
+-- 3 time: 5 hours
+{-
+    The lecture notes of this week discuss the conversion of Boolean 
+    formulas (formulas of propositional logic) into CNF form. The lecture 
+    notes also give a definition of a Haskell datatype for formulas of 
+    propositional logic, using lists for conjunctions and disjunctions. 
+    Your task is to write a Haskell program for converting formulas into CNF.
+-}
+
+test,test2 :: Form
+test = Dsj [Cnj [p,q], r]
+test2 = Dsj [r, Cnj [p,q]]
+
+-- Forces pairs on cnf and dnf so (p1^p2^p3) will become (p1^(p2^p3))
+-- This makes the math much easier for the next functions
+toPair :: Form -> Form
+toPair (Prop x) = Prop x
+toPair (Neg x) = (Neg x)
+toPair (Cnj [x]) = x
+toPair (Cnj [x,y]) = Cnj [x,y]
+toPair (Cnj (x:y:zs)) = Cnj [x, toPair (Cnj (y:zs))]
+toPair (Dsj [x]) = x
+toPair (Dsj [x,y]) = Dsj [x,y]
+toPair (Dsj (x:y:zs)) = Dsj [x, toPair (Dsj (y:zs))]
+
+--Distribute ORs inwards over ANDs: repeatedly replace P ∨ ( Q ∧ R ) 
+-- ( P ∨ Q ) ∧ ( P ∨ R ) 
+-- Since there is a max of 2 items in the array there are just 3 possiblity
+-- 1) Cnj on first place, 2) on second, 3) not present
+cnf1 :: Form -> Form
+cnf1 (Prop x) = Prop x
+cnf1 (Neg (Prop x)) = Neg (Prop x)
+cnf1 (Cnj xs) = Cnj (map cnf1 xs)
+cnf1 (Dsj [Cnj [x,y], z]) = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
+cnf1 (Dsj [z, Cnj [x,y]]) = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
+cnf1 (Dsj xs) = Dsj (map cnf1 xs)
+
+cnf :: Form -> Form
+cnf form = cnf1 formx 
+            where formx = toPair (nnf (arrowfree form))
+
+-- 4
+
+{-
+    Write a formula generator for random testing of properties of 
+    propositional logic, or teach yourself enough QuickCheck to use 
+    random QuickCheck testing of formulas.
+
+    Use your random testing method to test the correctness of the
+    conversion program from the previous exercise. Formulate a number 
+    of relevant properties to test, and carry out the tests, either with 
+    your own random formula generator or with QuickCheck.
+
+    Deliverables: generator for formulas, sequence of test properties,
+    test report, indication of time spent.
+-}
 
 main = do
     assignment1
     assignment2
     
+-- (a -> b) -> [a] -> [b]
