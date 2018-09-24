@@ -129,7 +129,7 @@ assignment2 = do
     print (all (\x -> testParseForm x) [tautP,tautQ, conjP,conjQ])
 
 
--- 3 time: 5 hours
+-- 3 time: 7 hours
 {-
     The lecture notes of this week discuss the conversion of Boolean 
     formulas (formulas of propositional logic) into CNF form. The lecture 
@@ -141,33 +141,53 @@ assignment2 = do
 test,test2 :: Form
 test = Dsj [Cnj [p,q], r]
 test2 = Dsj [r, Cnj [p,q]]
+test3 = Dsj [r,p ,q,Cnj[q,r,p]]
 
 -- Forces pairs on cnf and dnf so (p1^p2^p3) will become (p1^(p2^p3))
 -- This makes the math much easier for the next functions
 toPair :: Form -> Form
 toPair (Prop x) = Prop x
 toPair (Neg x) = (Neg x)
-toPair (Cnj [x]) = x
-toPair (Cnj [x,y]) = Cnj [x,y]
-toPair (Cnj (x:y:zs)) = Cnj [x, toPair (Cnj (y:zs))]
-toPair (Dsj [x]) = x
-toPair (Dsj [x,y]) = Dsj [x,y]
-toPair (Dsj (x:y:zs)) = Dsj [x, toPair (Dsj (y:zs))]
+toPair (Cnj [x]) = toPair x
+toPair (Cnj [x,y]) = Cnj [toPair x,toPair y]
+toPair (Cnj (x:y:zs)) = Cnj [toPair x, toPair (Cnj (y:zs))]
+toPair (Dsj [x]) = toPair x
+toPair (Dsj [x,y]) = Dsj [toPair x,toPair y]
+toPair (Dsj (x:y:zs)) = Dsj [toPair x, toPair (Dsj (y:zs))]
 
 --Distribute ORs inwards over ANDs: repeatedly replace P ∨ ( Q ∧ R ) 
 -- ( P ∨ Q ) ∧ ( P ∨ R ) 
 -- Since there is a max of 2 items in the array there are just 3 possiblity
 -- 1) Cnj on first place, 2) on second, 3) not present
+
+check :: Form -> Bool
+check (Prop x) = False
+check (Neg x) = False
+check (Cnj x) = (any check x)
+check (Dsj x) = (any check2 x)
+
+check2 :: Form -> Bool
+check2 (Prop x) = False
+check2 (Neg x) = False
+check2 (Cnj _) = True
+check2 (Dsj x) = (any check2 x)
+
 cnf1 :: Form -> Form
 cnf1 (Prop x) = Prop x
 cnf1 (Neg (Prop x)) = Neg (Prop x)
 cnf1 (Cnj xs) = Cnj (map cnf1 xs)
-cnf1 (Dsj [Cnj [x,y], z]) = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
-cnf1 (Dsj [z, Cnj [x,y]]) = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
-cnf1 (Dsj xs) = Dsj (map cnf1 xs)
+cnf1 (Dsj [Cnj [x,y], z]) = if (check x || check y || check z) then
+                                cnf1 $! (rp) else rp
+                            where 
+                                rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
+cnf1 (Dsj [z, Cnj [x,y]]) = if (check x || check y || check z) then
+                                cnf1 $! (rp) else rp
+                            where
+                                rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]                        
+cnf1 (Dsj [x, y]) = let rp = (Dsj (map cnf1 [x, y])) in if (check rp) then cnf1 $! rp else rp
 
 cnf :: Form -> Form
-cnf form = cnf1 formx 
+cnf form = cnf1 formx
             where formx = toPair (nnf (arrowfree form))
 
 -- 4
