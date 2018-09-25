@@ -121,6 +121,10 @@ toPairs (Dsj (x:[])) = toPairs x
 toPairs (Dsj (x:xs)) | (length xs) > 1 = Dsj [toPairs x,toPairs(Dsj xs)]
                      | otherwise = Dsj (map toPairs (x:xs))
 
+-- tests
+td1 = Dsj [p,Cnj [p,q,r],Dsj [p]]
+td2 = Cnj [p, Dsj [p,q,r], Cnj [p]]
+
 -- just reapplying untill it is in the correct format is key.
 -- if we do this we just look for the pattern
 -- when not doing this the algorithm isnt that good in circling back up
@@ -153,11 +157,18 @@ assignment3 = do
     print (equiv (cnf form3) form3)
     print (equiv (cnf td1) td1)
     print (equiv (cnf td2) td2)
-    print "reapplying cnf on an already cnf should do nothing"
+    print "Reapplying cnf on an already cnf should do nothing"
     print (cnf form1 == (cnf (cnf form1)))
     print (cnf form2 == (cnf (cnf form2)))
     print (cnf form3 == (cnf (cnf form3)))
-
+    print "Test with longer cnj and dsj arrays"
+    print (cnf (parse "+(2 3 4 5 *(6 7 8 9))" !! 0))
+    print (cnf (parse "*(2 3 4 5 +(6 7 8 9))" !! 0))
 -- 4. Generator.
 
 -- 5. Bonus.
+
+
+main = do
+    assignment1
+    assignment3

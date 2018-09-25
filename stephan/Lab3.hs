@@ -116,7 +116,7 @@ assignment2 = do
     print (map (flip evl testMulitpleDsj2) (allVals testMulitpleDsj2))
     print (map (flip evl testSingleCnj) (allVals testSingleCnj))
     print (map (flip evl testMulitpleCnj) (allVals testMulitpleCnj))
-    print "You can parse weard stuff and it will still work"
+    print "You can parse weird stuff and it will still work"
     print ("Parseing: " ++ weirdParse)
     print (parse weirdParse)
     print ("You have a max number to parse: " ++ parseLarge)
