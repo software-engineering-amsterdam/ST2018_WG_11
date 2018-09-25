@@ -163,6 +163,7 @@ isCnj (Cnj xs) = True
 isCnj _ = False
 
 -- automated test
+autoTesting :: Int -> IO Bool
 autoTesting count = do
                 form <- randomForm
                 nextTest <- if count > 0 then autoTesting (count - 1) else return True
