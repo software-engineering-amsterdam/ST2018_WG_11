@@ -33,7 +33,7 @@ equiv f1 f2 = entails f1 f2 && entails f2 f1
         p v not p -> p v not p ==> True
         p v not p -> f v not f ==> True
         p ^ not p -> f ^ not f ==> True
-        p v not p -> f ^ not f ==> False 
+        p v not p -> f ^ not f ==> False
     Tested equiv with:
         p v not p <-> p v not p ==> True
         p v not p <-> f v not f ==> True
@@ -96,12 +96,12 @@ parseArrows = ["(1 ==> 2)", "+((1 ==> 2) 3 (3 <=> 3))"]
     Should always return True or give unkown token error.
 -}
 testParseString :: String -> Bool
-testParseString x = (length (parse x) > 0) --> (parse x) 
+testParseString x = (length (parse x) > 0) --> (parse x)
                         == (parse (show (head (parse x))))
 
 {-
     Should always return True
--}                    
+-}
 testParseForm :: Form -> Bool
 testParseForm x = head (parse (show x)) == x
 
@@ -130,10 +130,10 @@ assignment2 = do
 
 -- 3 time: 7 hours
 {-
-    The lecture notes of this week discuss the conversion of Boolean 
-    formulas (formulas of propositional logic) into CNF form. The lecture 
-    notes also give a definition of a Haskell datatype for formulas of 
-    propositional logic, using lists for conjunctions and disjunctions. 
+    The lecture notes of this week discuss the conversion of Boolean
+    formulas (formulas of propositional logic) into CNF form. The lecture
+    notes also give a definition of a Haskell datatype for formulas of
+    propositional logic, using lists for conjunctions and disjunctions.
     Your task is to write a Haskell program for converting formulas into CNF.
 -}
 
@@ -154,8 +154,8 @@ toPair (Dsj [x]) = toPair x
 toPair (Dsj [x,y]) = Dsj [toPair x,toPair y]
 toPair (Dsj (x:y:zs)) = Dsj [toPair x, toPair (Dsj (y:zs))]
 
---Distribute ORs inwards over ANDs: repeatedly replace P ∨ ( Q ∧ R ) 
--- ( P ∨ Q ) ∧ ( P ∨ R ) 
+--Distribute ORs inwards over ANDs: repeatedly replace P ∨ ( Q ∧ R )
+-- ( P ∨ Q ) ∧ ( P ∨ R )
 -- Since there is a max of 2 items in the array there are just 3 possiblity
 -- 1) Cnj on first place, 2) on second, 3) not present
 
@@ -177,28 +177,28 @@ cnf1 (Neg (Prop x)) = Neg (Prop x)
 cnf1 (Cnj xs) = Cnj (map cnf1 xs)
 cnf1 (Dsj [Cnj [x,y], z]) = if (check x || check y || check z) then
                                 cnf1 $! (rp) else rp
-                            where 
+                            where
                                 rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
 cnf1 (Dsj [z, Cnj [x,y]]) = if (check x || check y || check z) then
                                 cnf1 $! (rp) else rp
                             where
-                                rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]                        
+                                rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
 cnf1 (Dsj [x, y]) = let rp = (Dsj (map cnf1 [x, y])) in if (check rp) then cnf1 $! rp else rp
 
 cnf :: Form -> Form
 cnf form = cnf1 formx
             where formx = toPair (nnf (arrowfree form))
 
--- 4
+-- 4 time: 8 hours
 
 {-
-    Write a formula generator for random testing of properties of 
-    propositional logic, or teach yourself enough QuickCheck to use 
+    Write a formula generator for random testing of properties of
+    propositional logic, or teach yourself enough QuickCheck to use
     random QuickCheck testing of formulas.
 
     Use your random testing method to test the correctness of the
-    conversion program from the previous exercise. Formulate a number 
-    of relevant properties to test, and carry out the tests, either with 
+    conversion program from the previous exercise. Formulate a number
+    of relevant properties to test, and carry out the tests, either with
     your own random formula generator or with QuickCheck.
 
     Deliverables: generator for formulas, sequence of test properties,
@@ -210,8 +210,8 @@ data Form = Prop Name
           | Neg  Form
           | Cnj [Form]
           | Dsj [Form]
-          | Impl Form Form 
-          | Equiv Form Form 
+          | Impl Form Form
+          | Equiv Form Form
           deriving (Eq,Ord)
 -}
 
@@ -238,7 +238,7 @@ randomForm layer = do
     prop2 <- if (layer > 0 && randomFactor2 > 50) then randomForm (layer - 1) else randomProp
     return $ if op == "-" then op ++ prop
                 else if (op == "==>" || op == "<=>")
-                    then 
+                    then
                         if (False)
                             then "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
                                 else "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
@@ -253,5 +253,5 @@ randomForms = do
 main = do
     assignment1
     assignment2
-    
+
 -- (a -> b) -> [a] -> [b]
