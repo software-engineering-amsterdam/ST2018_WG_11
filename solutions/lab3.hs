@@ -47,6 +47,49 @@ assignment1 = do
 -- (Deliverables: description of your method of checking the definitions)
 
 -- 2. Test the parse function for parsing propositional formulas.
+tautP, tautQ, conjP, conjQ :: Form
+tautP = Dsj [p, Neg p]
+tautQ = Dsj [q, Neg q]
+conjP = Cnj [p, Neg p]
+conjQ = Cnj [q, Neg q]
+
+parseTautP = "+(1 -1)"
+parseTautQ = "+(2 -2)"
+parseConjP = "*(1 -1)"
+parseConjQ = "*(2 -2)"
+
+testSingleDsj = parse "+(1)" !! 0
+testMulitpleDsj = parse "+(2 2 2 2 2)" !! 0
+testMulitpleDsj2 = parse "+(2 3 4 5 6)" !! 0
+
+testSingleCnj = parse "*(1)" !! 0
+testMulitpleCnj = parse "*(2 3 4 5 6)" !! 0
+
+weirdParse = "+(1 1) asfsajfsdjklafndsa ()(#(#$&#@^&$(@#*()_)!_!__!@*!@_+!"
+parseLarge = "(1 ==> 999999999999999999999999)"
+
+-- -- (p ^ (q v r) ^ r2)
+-- testCnjDsj = parse "*(1 +(2 3) 4)" !! 0
+-- parseArrows = ["(1 ==> 2)", "+((1 ==> 2) 3 (3 <=> 3))"]
+
+
+-- Automated tests
+
+{-
+    When you create a Form from a string, show it and parse it again
+    it should give the same result.
+    Should always return True or give unkown token error.
+-}
+
+
+
+
+assignment2 = do
+    print "exercise 2"
+    print (parse parseTautP !! 0 == tautP)
+    print (parse parseTautQ !! 0 == tautQ)
+    print (parse parseConjP !! 0 == conjP)
+    print (parse parseConjQ !! 0 == conjQ)
 
 -- 3. Haskell program for converting formulas into CNF.
 strictCnf :: Form -> Form
@@ -114,6 +157,7 @@ assignment3 = do
     print (cnf form1 == (cnf (cnf form1)))
     print (cnf form2 == (cnf (cnf form2)))
     print (cnf form3 == (cnf (cnf form3)))
+
 -- 4. Generator.
 
 -- 5. Bonus.
