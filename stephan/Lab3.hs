@@ -123,7 +123,6 @@ assignment2 = do
     print (parse parseLarge)
     print ([parse x !! 0 | x <- parseArrows])
     print (allVals testCnjDsj)
-    print (map (flip evl testCnjDsj) (allVals testCnjDsj))
     print "assingment 2 - functionable testing"
     print (all (\x -> testParseString x) [parseTautP,parseTautQ,parseConjP,parseConjQ])
     print (all (\x -> testParseForm x) [tautP,tautQ, conjP,conjQ])
@@ -205,6 +204,51 @@ cnf form = cnf1 formx
     Deliverables: generator for formulas, sequence of test properties,
     test report, indication of time spent.
 -}
+
+{-
+data Form = Prop Name
+          | Neg  Form
+          | Cnj [Form]
+          | Dsj [Form]
+          | Impl Form Form 
+          | Equiv Form Form 
+          deriving (Eq,Ord)
+-}
+
+randomOp :: IO String
+randomOp = do
+    x <- randomRIO(0,50) :: IO Int
+    return $ if x <= 10 then "-"
+                else if x <= 20 then "+"
+                else if x <= 30 then "*"
+                else if x <= 40 then "==>"
+                else "<=>"
+
+randomProp :: IO String
+randomProp = do
+    x <- randomRIO(1,100) :: IO Int
+    return $ show x
+
+randomForm :: Int -> IO String
+randomForm layer = do
+    op <- randomOp
+    randomFactor1 <- randomRIO (0,100) :: IO Int
+    randomFactor2 <- randomRIO (0,100) :: IO Int
+    prop <- if (layer > 0 && randomFactor1 > 50) then randomForm (layer - 1) else randomProp
+    prop2 <- if (layer > 0 && randomFactor2 > 50) then randomForm (layer - 1) else randomProp
+    return $ if op == "-" then op ++ prop
+                else if (op == "==>" || op == "<=>")
+                    then 
+                        if (False)
+                            then "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
+                                else "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
+                    else op ++ "(" ++ prop ++ " " ++ prop2 ++ ")"
+
+randomForms :: IO Form
+randomForms = do
+                length <- randomRIO (5,15)
+                x <- randomForm length
+                return $ head (parse x)
 
 main = do
     assignment1

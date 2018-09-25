@@ -58,12 +58,12 @@ parseTautQ = "+(2 -2)"
 parseConjP = "*(1 -1)"
 parseConjQ = "*(2 -2)"
 
-testSingleDsj = parse "+(1)" !! 0
-testMulitpleDsj = parse "+(2 2 2 2 2)" !! 0
-testMulitpleDsj2 = parse "+(2 3 4 5 6)" !! 0
+testSingleDsj = parse "+(1)" !! 0 -- Does this work?
+testMulitpleDsj = parse "+(2 2 2 2 2)" !! 0 -- Only 2 evl possible
+testMulitpleDsj2 = parse "+(2 3 4 5 6)" !! 0 -- When evl 1 False rest True
 
-testSingleCnj = parse "*(1)" !! 0
-testMulitpleCnj = parse "*(2 3 4 5 6)" !! 0
+testSingleCnj = parse "*(1)" !! 0 -- Does this work?
+testMulitpleCnj = parse "*(2 3 4 5 6)" !! 0 -- When evl 1 True rest False
 
 weirdParse = "+(1 1) asfsajfsdjklafndsa ()(#(#$&#@^&$(@#*()_)!_!__!@*!@_+!"
 parseLarge = "(1 ==> 999999999999999999999999)"
@@ -90,6 +90,16 @@ assignment2 = do
     print (parse parseTautQ !! 0 == tautQ)
     print (parse parseConjP !! 0 == conjP)
     print (parse parseConjQ !! 0 == conjQ)
+    print "You can parse weird stuff and it will still work"
+    print ("Parseing: " ++ weirdParse ++ ". will give:")
+    print (parse weirdParse)
+    print ("You have a max number to parse: " ++ parseLarge)
+    print (parse parseLarge)
+    print (map (flip evl testSingleDsj) (allVals testSingleDsj))
+    print (map (flip evl testMulitpleDsj) (allVals testMulitpleDsj))
+    print (map (flip evl testMulitpleDsj2) (allVals testMulitpleDsj2))
+    print (map (flip evl testSingleCnj) (allVals testSingleCnj))
+    print (map (flip evl testMulitpleCnj) (allVals testMulitpleCnj))
 
 -- 3. Haskell program for converting formulas into CNF.
 strictCnf :: Form -> Form
@@ -171,4 +181,5 @@ assignment3 = do
 
 main = do
     assignment1
+    assignment2
     assignment3
