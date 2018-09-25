@@ -147,6 +147,9 @@ cnf :: Form -> Form
 cnf frm = while (not . isCnf) strictCnf inp
       where inp = toPairs (nnf (arrowfree frm))
 
+optimizedCnf :: Form -> Form
+optimizedCnf frm = optimize (cnf frm)
+
 -- Check if the function is in cnf form.
 isCnf :: Form -> Bool
 isCnf (Prop x) = True
@@ -169,6 +172,15 @@ autoTesting count = do
                 nextTest <- if count > 0 then autoTesting (count - 1) else return True
                 return $ isCnf (cnf form) && nextTest
 
+-- function that does a simple optimization like (p^p)->p
+optimize :: Form -> Form
+optimize (Prop x) = Prop x
+optimize (Neg x) = Neg (optimize x)
+optimize (Dsj [x,y]) = if (equiv x y) then (optimize x) else Dsj [optimize x,optimize y]
+optimize (Cnj [x,y]) = if (equiv x y) then (optimize x) else Cnj [optimize x,optimize y]
+optimize (Impl x y) = Impl (optimize x) (optimize y)
+optimize (Equiv x y) = Equiv (optimize x) (optimize y)
+
 assignment3 = do
     print "exercise 3"
     print "Check equivalence with original"
@@ -184,6 +196,17 @@ assignment3 = do
     print "Test with longer cnj and dsj arrays"
     print (cnf (parse "+(2 3 4 5 *(6 7 8 9))" !! 0))
     print (cnf (parse "*(2 3 4 5 +(6 7 8 9))" !! 0))
+    print "Test the optimized cnf"
+    print "original->cnf->optimizedcnf->equivalence"
+    print form1
+    print (cnf form1)
+    print (optimizedCnf form1)
+    print (equiv (cnf form1) (optimizedCnf form1))
+    print "original->cnf->optimizedcnf->equivalence"
+    print form2
+    print (cnf form2)
+    print (optimizedCnf form2)
+    print (equiv (cnf form2) (optimizedCnf form2))
     autoTesting 10
 
 -- 4. Generator.
