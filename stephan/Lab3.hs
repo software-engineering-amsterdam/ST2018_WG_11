@@ -229,13 +229,13 @@ randomProp = do
     x <- randomRIO(1,100) :: IO Int
     return $ show x
 
-randomForm :: Int -> IO String
-randomForm layer = do
+randomFormString :: Int -> IO String
+randomFormString layer = do
     op <- randomOp
     randomFactor1 <- randomRIO (0,100) :: IO Int
     randomFactor2 <- randomRIO (0,100) :: IO Int
-    prop <- if (layer > 0 && randomFactor1 > 50) then randomForm (layer - 1) else randomProp
-    prop2 <- if (layer > 0 && randomFactor2 > 50) then randomForm (layer - 1) else randomProp
+    prop <- if (layer > 0 && randomFactor1 > 50) then randomFormString (layer - 1) else randomProp
+    prop2 <- if (layer > 0 && randomFactor2 > 50) then randomFormString (layer - 1) else randomProp
     return $ if op == "-" then op ++ prop
                 else if (op == "==>" || op == "<=>")
                     then
