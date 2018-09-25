@@ -223,6 +223,24 @@ randomForm = do
                 x <- randomFormString length
                 return $ head (parse x)
 
+assignment4 = do
+              print "exercise 4"
+              f1 <- randomForm
+              f2 <- randomForm
+              f3 <- randomForm
+              f4 <- randomForm
+              
+              print "Show some randomly generated forms"
+              print f1
+              print f2
+              print f3
+              print f4
+              print "Apply cnf for testing purposes"
+              print (cnf f1)
+              print (cnf f2)
+              print (cnf f3)
+              print (cnf f4)
+
 -- 5. Bonus.
 
 
@@ -230,3 +248,4 @@ main = do
     assignment1
     assignment2
     assignment3
+    assignment4
