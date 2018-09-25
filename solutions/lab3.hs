@@ -162,6 +162,12 @@ isCnj :: Form -> Bool
 isCnj (Cnj xs) = True
 isCnj _ = False
 
+-- automated test
+autoTesting count = do
+                form <- randomForm
+                nextTest <- if count > 0 then autoTesting (count - 1) else return True
+                return $ isCnf (cnf form) && nextTest
+
 assignment3 = do
     print "exercise 3"
     print "Check equivalence with original"
@@ -177,6 +183,7 @@ assignment3 = do
     print "Test with longer cnj and dsj arrays"
     print (cnf (parse "+(2 3 4 5 *(6 7 8 9))" !! 0))
     print (cnf (parse "*(2 3 4 5 +(6 7 8 9))" !! 0))
+    autoTesting 10
 
 -- 4. Generator.
 
@@ -210,8 +217,8 @@ randomFormString layer = do
                                 else "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
                     else op ++ "(" ++ prop ++ " " ++ prop2 ++ ")"
 
-randomForms :: IO Form
-randomForms = do
+randomForm :: IO Form
+randomForm = do
                 length <- randomRIO (5,15)
                 x <- randomFormString length
                 return $ head (parse x)
