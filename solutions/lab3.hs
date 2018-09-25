@@ -213,7 +213,7 @@ randomFormString layer = do
 randomForms :: IO Form
 randomForms = do
                 length <- randomRIO (5,15)
-                x <- randomForm length
+                x <- randomFormString length
                 return $ head (parse x)
 
 -- 5. Bonus.
