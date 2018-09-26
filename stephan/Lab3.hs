@@ -33,7 +33,7 @@ equiv f1 f2 = entails f1 f2 && entails f2 f1
         p v not p -> p v not p ==> True
         p v not p -> f v not f ==> True
         p ^ not p -> f ^ not f ==> True
-        p v not p -> f ^ not f ==> False 
+        p v not p -> f ^ not f ==> False
     Tested equiv with:
         p v not p <-> p v not p ==> True
         p v not p <-> f v not f ==> True
@@ -96,12 +96,12 @@ parseArrows = ["(1 ==> 2)", "+((1 ==> 2) 3 (3 <=> 3))"]
     Should always return True or give unkown token error.
 -}
 testParseString :: String -> Bool
-testParseString x = (length (parse x) > 0) --> (parse x) 
+testParseString x = (length (parse x) > 0) --> (parse x)
                         == (parse (show (head (parse x))))
 
 {-
     Should always return True
--}                    
+-}
 testParseForm :: Form -> Bool
 testParseForm x = head (parse (show x)) == x
 
@@ -123,7 +123,6 @@ assignment2 = do
     print (parse parseLarge)
     print ([parse x !! 0 | x <- parseArrows])
     print (allVals testCnjDsj)
-    print (map (flip evl testCnjDsj) (allVals testCnjDsj))
     print "assingment 2 - functionable testing"
     print (all (\x -> testParseString x) [parseTautP,parseTautQ,parseConjP,parseConjQ])
     print (all (\x -> testParseForm x) [tautP,tautQ, conjP,conjQ])
@@ -131,10 +130,10 @@ assignment2 = do
 
 -- 3 time: 7 hours
 {-
-    The lecture notes of this week discuss the conversion of Boolean 
-    formulas (formulas of propositional logic) into CNF form. The lecture 
-    notes also give a definition of a Haskell datatype for formulas of 
-    propositional logic, using lists for conjunctions and disjunctions. 
+    The lecture notes of this week discuss the conversion of Boolean
+    formulas (formulas of propositional logic) into CNF form. The lecture
+    notes also give a definition of a Haskell datatype for formulas of
+    propositional logic, using lists for conjunctions and disjunctions.
     Your task is to write a Haskell program for converting formulas into CNF.
 -}
 
@@ -155,8 +154,8 @@ toPair (Dsj [x]) = toPair x
 toPair (Dsj [x,y]) = Dsj [toPair x,toPair y]
 toPair (Dsj (x:y:zs)) = Dsj [toPair x, toPair (Dsj (y:zs))]
 
---Distribute ORs inwards over ANDs: repeatedly replace P ∨ ( Q ∧ R ) 
--- ( P ∨ Q ) ∧ ( P ∨ R ) 
+--Distribute ORs inwards over ANDs: repeatedly replace P ∨ ( Q ∧ R )
+-- ( P ∨ Q ) ∧ ( P ∨ R )
 -- Since there is a max of 2 items in the array there are just 3 possiblity
 -- 1) Cnj on first place, 2) on second, 3) not present
 
@@ -178,36 +177,81 @@ cnf1 (Neg (Prop x)) = Neg (Prop x)
 cnf1 (Cnj xs) = Cnj (map cnf1 xs)
 cnf1 (Dsj [Cnj [x,y], z]) = if (check x || check y || check z) then
                                 cnf1 $! (rp) else rp
-                            where 
+                            where
                                 rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
 cnf1 (Dsj [z, Cnj [x,y]]) = if (check x || check y || check z) then
                                 cnf1 $! (rp) else rp
                             where
-                                rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]                        
+                                rp = Cnj [(cnf1 (Dsj [x,z])), (cnf1 (Dsj [y,z]))]
 cnf1 (Dsj [x, y]) = let rp = (Dsj (map cnf1 [x, y])) in if (check rp) then cnf1 $! rp else rp
 
 cnf :: Form -> Form
 cnf form = cnf1 formx
             where formx = toPair (nnf (arrowfree form))
 
--- 4
+-- 4 time: 8 hours
 
 {-
-    Write a formula generator for random testing of properties of 
-    propositional logic, or teach yourself enough QuickCheck to use 
+    Write a formula generator for random testing of properties of
+    propositional logic, or teach yourself enough QuickCheck to use
     random QuickCheck testing of formulas.
 
     Use your random testing method to test the correctness of the
-    conversion program from the previous exercise. Formulate a number 
-    of relevant properties to test, and carry out the tests, either with 
+    conversion program from the previous exercise. Formulate a number
+    of relevant properties to test, and carry out the tests, either with
     your own random formula generator or with QuickCheck.
 
     Deliverables: generator for formulas, sequence of test properties,
     test report, indication of time spent.
 -}
 
+{-
+data Form = Prop Name
+          | Neg  Form
+          | Cnj [Form]
+          | Dsj [Form]
+          | Impl Form Form
+          | Equiv Form Form
+          deriving (Eq,Ord)
+-}
+
+randomOp :: IO String
+randomOp = do
+    x <- randomRIO(0,50) :: IO Int
+    return $ if x <= 10 then "-"
+                else if x <= 20 then "+"
+                else if x <= 30 then "*"
+                else if x <= 40 then "==>"
+                else "<=>"
+
+randomProp :: IO String
+randomProp = do
+    x <- randomRIO(1,100) :: IO Int
+    return $ show x
+
+randomFormString :: Int -> IO String
+randomFormString layer = do
+    op <- randomOp
+    randomFactor1 <- randomRIO (0,100) :: IO Int
+    randomFactor2 <- randomRIO (0,100) :: IO Int
+    prop <- if (layer > 0 && randomFactor1 > 50) then randomFormString (layer - 1) else randomProp
+    prop2 <- if (layer > 0 && randomFactor2 > 50) then randomFormString (layer - 1) else randomProp
+    return $ if op == "-" then op ++ prop
+                else if (op == "==>" || op == "<=>")
+                    then
+                        if (False)
+                            then "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
+                                else "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
+                    else op ++ "(" ++ prop ++ " " ++ prop2 ++ ")"
+
+randomForms :: IO Form
+randomForms = do
+                length <- randomRIO (5,15)
+                x <- randomFormString length
+                return $ head (parse x)
+
 main = do
     assignment1
     assignment2
-    
+
 -- (a -> b) -> [a] -> [b]

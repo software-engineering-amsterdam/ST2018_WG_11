@@ -58,12 +58,12 @@ parseTautQ = "+(2 -2)"
 parseConjP = "*(1 -1)"
 parseConjQ = "*(2 -2)"
 
-testSingleDsj = parse "+(1)" !! 0
-testMulitpleDsj = parse "+(2 2 2 2 2)" !! 0
-testMulitpleDsj2 = parse "+(2 3 4 5 6)" !! 0
+testSingleDsj = parse "+(1)" !! 0 -- Does this work?
+testMulitpleDsj = parse "+(2 2 2 2 2)" !! 0 -- Only 2 evl possible
+testMulitpleDsj2 = parse "+(2 3 4 5 6)" !! 0 -- When evl 1 False rest True
 
-testSingleCnj = parse "*(1)" !! 0
-testMulitpleCnj = parse "*(2 3 4 5 6)" !! 0
+testSingleCnj = parse "*(1)" !! 0 -- Does this work?
+testMulitpleCnj = parse "*(2 3 4 5 6)" !! 0 -- When evl 1 True rest False
 
 weirdParse = "+(1 1) asfsajfsdjklafndsa ()(#(#$&#@^&$(@#*()_)!_!__!@*!@_+!"
 parseLarge = "(1 ==> 999999999999999999999999)"
@@ -73,14 +73,16 @@ parseLarge = "(1 ==> 999999999999999999999999)"
 -- parseArrows = ["(1 ==> 2)", "+((1 ==> 2) 3 (3 <=> 3))"]
 
 
--- Automated tests
-
+-- propertie testing
 {-
     When you create a Form from a string, show it and parse it again
     it should give the same result.
+
     Should always return True or give unkown token error.
 -}
-
+testParseString :: String -> Bool
+testParseString x = (length (parse x) > 0) --> (parse x)
+                        == (parse (show (head (parse x))))
 
 
 
@@ -90,6 +92,17 @@ assignment2 = do
     print (parse parseTautQ !! 0 == tautQ)
     print (parse parseConjP !! 0 == conjP)
     print (parse parseConjQ !! 0 == conjQ)
+    print "You can parse weird stuff and it will still work"
+    print ("Parseing: " ++ weirdParse ++ ". will give:")
+    print (parse weirdParse)
+    print ("You have a max number to parse: " ++ parseLarge)
+    print (parse parseLarge)
+    print (map (flip evl testSingleDsj) (allVals testSingleDsj))
+    print (map (flip evl testMulitpleDsj) (allVals testMulitpleDsj))
+    print (map (flip evl testMulitpleDsj2) (allVals testMulitpleDsj2))
+    print (map (flip evl testSingleCnj) (allVals testSingleCnj))
+    print (map (flip evl testMulitpleCnj) (allVals testMulitpleCnj))
+    print (all (\x -> testParseString x) [parseTautP,parseTautQ,parseConjP,parseConjQ])
 
 -- 3. Haskell program for converting formulas into CNF.
 strictCnf :: Form -> Form
@@ -134,6 +147,9 @@ cnf :: Form -> Form
 cnf frm = while (not . isCnf) strictCnf inp
       where inp = toPairs (nnf (arrowfree frm))
 
+optimizedCnf :: Form -> Form
+optimizedCnf frm = optimize (cnf frm)
+
 -- Check if the function is in cnf form.
 isCnf :: Form -> Bool
 isCnf (Prop x) = True
@@ -148,6 +164,22 @@ isCnf (Equiv x y) = False
 isCnj :: Form -> Bool
 isCnj (Cnj xs) = True
 isCnj _ = False
+
+-- automated test
+autoTesting :: Int -> IO Bool
+autoTesting count = do
+                form <- randomForm
+                nextTest <- if count > 0 then autoTesting (count - 1) else return True
+                return $ isCnf (cnf form) && nextTest
+
+-- function that does a simple optimization like (p^p)->p
+optimize :: Form -> Form
+optimize (Prop x) = Prop x
+optimize (Neg x) = Neg (optimize x)
+optimize (Dsj [x,y]) = if (equiv x y) then (optimize x) else Dsj [optimize x,optimize y]
+optimize (Cnj [x,y]) = if (equiv x y) then (optimize x) else Cnj [optimize x,optimize y]
+optimize (Impl x y) = Impl (optimize x) (optimize y)
+optimize (Equiv x y) = Equiv (optimize x) (optimize y)
 
 assignment3 = do
     print "exercise 3"
@@ -164,11 +196,80 @@ assignment3 = do
     print "Test with longer cnj and dsj arrays"
     print (cnf (parse "+(2 3 4 5 *(6 7 8 9))" !! 0))
     print (cnf (parse "*(2 3 4 5 +(6 7 8 9))" !! 0))
+    print "Test the optimized cnf"
+    print "original->cnf->optimizedcnf->equivalence"
+    print form1
+    print (cnf form1)
+    print (optimizedCnf form1)
+    print (equiv (cnf form1) (optimizedCnf form1))
+    print "original->cnf->optimizedcnf->equivalence"
+    print form2
+    print (cnf form2)
+    print (optimizedCnf form2)
+    print (equiv (cnf form2) (optimizedCnf form2))
+    autoTesting 10
+
 -- 4. Generator.
+
+
+randomOp :: IO String
+randomOp = do
+    x <- randomRIO(0,50) :: IO Int
+    return $ if x <= 10 then "-"
+                else if x <= 20 then "+"
+                else if x <= 30 then "*"
+                else if x <= 40 then "==>"
+                else "<=>"
+
+randomProp :: IO String
+randomProp = do
+    x <- randomRIO(1,100) :: IO Int
+    return $ show x
+
+randomFormString :: Int -> IO String
+randomFormString layer = do
+    op <- randomOp
+    randomFactor1 <- randomRIO (0,100) :: IO Int
+    randomFactor2 <- randomRIO (0,100) :: IO Int
+    prop <- if (layer > 0 && randomFactor1 > 50) then randomFormString (layer - 1) else randomProp
+    prop2 <- if (layer > 0 && randomFactor2 > 50) then randomFormString (layer - 1) else randomProp
+    return $ if op == "-" then op ++ prop
+                else if (op == "==>" || op == "<=>")
+                    then
+                        if (False)
+                            then "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
+                                else "(" ++ prop ++ " " ++ op ++ " " ++ prop2 ++ ")"
+                    else op ++ "(" ++ prop ++ " " ++ prop2 ++ ")"
+
+randomForm :: IO Form
+randomForm = do
+                length <- randomRIO (5,15)
+                x <- randomFormString length
+                return $ head (parse x)
+
+assignment4 = do
+              print "exercise 4"
+              f1 <- randomForm
+              f2 <- randomForm
+              f3 <- randomForm
+              f4 <- randomForm
+              
+              print "Show some randomly generated forms"
+              print f1
+              print f2
+              print f3
+              print f4
+              print "Apply cnf for testing purposes"
+              print (cnf f1)
+              print (cnf f2)
+              print (cnf f3)
+              print (cnf f4)
 
 -- 5. Bonus.
 
 
 main = do
     assignment1
+    assignment2
     assignment3
+    assignment4
