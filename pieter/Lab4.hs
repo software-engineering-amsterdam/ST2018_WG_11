@@ -6,11 +6,12 @@ import Test.QuickCheck
 import SetOrd
 import System.Random
 
--- instance Arbitrary Int => Arbitrary (Set Int) where
---     arbitrary = do
---         xs <- [(choose (0,100)) | y <- [0..choose (0,100)]]
---         -- xs <- Set [0..(choose (1,10))]
---         return (Set xs)
+-- Exercise 1 Read Chapter 4 of The Haskell Road
+-- 90 minutes
+-- Pretty much everything was clear but some exercises and 
+-- examples were vague like exercise 4.33 and 4.34
+
+-- Exercise 4 Read Chapter 5 of The Haskell Road
 
 instance Arbitrary a => Arbitrary (Set a) where
     arbitrary = do
