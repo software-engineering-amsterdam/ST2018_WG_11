@@ -2,6 +2,7 @@
 module Lab4
 where 
 import Data.List
+import Data.Tuple
 import System.Random
 import Test.QuickCheck
 import Lecture4
@@ -144,14 +145,20 @@ checkDifferenceSet set1 set2 = all (\x -> x) (map check union)
 
 -- Check if the concatination of the Set is the same as the union
 checkUnionSet :: (Ord a) => Set a -> Set a -> Bool
-checkUnionSet (Set xs) (Set ys) = setToList (unionSet (Set xs) (Set ys)) 
-    == sort (nub (xs ++ ys))
+checkUnionSet (Set xs) (Set ys) = p1 && p2
+    where 
+        p1 = setToList (unionSet (Set xs) (Set ys)) == sort (nub (xs ++ ys)) 
+        p2 = all (==True) [(z `elem` xs) || (z `elem` ys) | z <- union]
+            where (Set union) = unionSet (Set xs) (Set ys)
 
 
 assignment3 = do
     print ("Assingment 3")
+    putStrLn "Test intersection"
     quickCheck (checkIntersectionSet :: Set Int -> Set Int -> Bool)
+    putStrLn "Test difference"
     quickCheck (checkDifferenceSet :: Set Int -> Set Int -> Bool)
+    putStrLn "Test union"
     quickCheck (checkUnionSet :: Set Int -> Set Int -> Bool)
 
 
@@ -194,7 +201,7 @@ assignment3 = do
 
 
 
--- 5 Time: 10 min
+-- 5
 
 {-
     Suppose we implement binary relations as list of pairs, Haskell 
@@ -215,16 +222,25 @@ type Rel a = [(a,a)]
 
 -- If (x,y) ∈ A then (y,x) ∈ A
 symClos :: Ord a => Rel a -> Rel a
-symClos xs = sort (nub (xs ++ [(y,x)| (x,y) <- xs]))
+symClos xs = sort(xs ++ [(swap x) | x <- xs, not ((swap x) `elem` xs)])
 
 assignment5 = do
     print ("Assingment 5")
     print (symClos [(1,2),(2,3),(3,4)] == [(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)])
+    putStrLn "Create symetric closure"
+    let tr1 = [(1,2),(2,3),(3,4)]
+    putStrLn $ "input -> " ++ show (tr1)
+    putStrLn $ "   output -> " ++ show (symClos(tr1))
+    let tr2 = [(1,1),(2,2)]
+    putStrLn $ "input -> " ++ show (tr2)
+    putStrLn $ "   output -> " ++ show (symClos(tr2))
+    let tr3 = [(1,2),(2,1)]
+    putStrLn $ "input -> " ++ show (tr3)
+    putStrLn $ "   output -> " ++ show (symClos(tr3))
 
--- 6 Time: 20 min
+-- 6
 
 {-
-
     Use the datatype for relations from the previous exercise, plus
 
     > infixr 5 @@
@@ -254,7 +270,16 @@ trClos = fp (\xs -> sort (nub (xs ++ xs @@ xs)))
 assignment6 = do
     print ("Assignment 6")
     print (trClos [(1,2),(2,3),(3,4)] == [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)])
-
+    putStrLn "Create transitive closure"
+    let tr1 = [(1,2),(2,3),(3,4)]
+    putStrLn $ "input -> " ++ show (tr1)
+    putStrLn $ "   output -> " ++ show (trClos(tr1))
+    let tr2 = [(1,1),(2,2)]
+    putStrLn $ "input -> " ++ show (tr2)
+    putStrLn $ "   output -> " ++ show (trClos(tr2))
+    let tr3 = [(1,2),(2,1)]
+    putStrLn $ "input -> " ++ show (tr3)
+    putStrLn $ "   output -> " ++ show (trClos(tr3))
 -- 7 time: 1 hour + 30 minuts
 
 {-
@@ -266,30 +291,23 @@ assignment6 = do
 -}
 
 -- For every (x,y) ∈ A -> (y,x) ∈ A
-checkSymClos :: Ord a => Rel a -> Bool
-checkSymClos xs = all (\x -> x) (map (\(x,y) -> elem (y,x) symclos) symclos)
-    where
-        symclos = symClos xs
-
--- returns all [(x,_)] in xs
-startingWith :: (Eq a) => a-> Rel a -> Rel a
-startingWith x xs = [(a,b)| (a,b) <- xs, a == x]
-
-endingWith :: (Eq a) => a-> Rel a -> Rel a
-endingWith x xs = [(a,b)| (a,b) <- xs, b == x]
+testSymmetry :: Ord a => Rel a -> Bool
+testSymmetry xs = all (==True) [(swap x) `elem` sym  | x <- sym]
+            where sym = (symClos xs)
 
 -- If (a,b) ∈ A ^ (b,c) ∈ A -> (a,c) ∈ A
 -- If (a,b) ∈ A -> some (a,_) ∈ A ^ some (_,b) ∈ A
 checktrClos :: Ord a => Rel a -> Bool
 checktrClos xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos, 
-                    (c,d) <- trclos, b == c] ++
-                    [not (null (startingWith a xs)) && not (null (endingWith b xs))| (a,b) <- trclos])
+                    (c,d) <- trclos, b == c])
                     where 
                         trclos = trClos xs
 
 assignment7 = do
     print ("Assingment 7")
-    quickCheck (checkSymClos :: Rel Int -> Bool)
+    putStrLn "Test symetry"
+    quickCheck (testEquivalence :: Rel Int -> Bool)
+    putStrLn "Test transitivity"
     quickCheck (checktrClos :: Rel Int -> Bool)
 
 -- 8
@@ -304,17 +322,21 @@ assignment7 = do
     an example that illustrates the difference.
 -}
 
--- Check wether the sequence matters
-testClosure :: (Eq a, Ord a) => Rel a -> Bool
-testClosure xs = trClos (symClos xs) == symClos (trClos xs)
+-- By generating random relations and checking if it's the same we can check the equivalence
+-- If the combinations are equal the quickcheck should always pass all tests
+testEquivalence :: (Ord a) => Rel a -> Bool
+testEquivalence xs = trClos (symClos xs) == symClos(trClos xs)
 
 
 assignment8 = do
     print ("Assingment 8")
     print ("yes it matters Example Rel [(0,1)]")
+    putStrLn "First symmetry"
     print (trClos (symClos ([(0,1)])))
+    putStrLn "First transitivity"
     print (symClos (trClos ([(0,1)])))
-    quickCheck (testClosure :: Rel Int -> Bool)
+    putStrLn "QuickCheck should fail"
+    quickCheck (testEquivalence :: Rel Int -> Bool)
 
 
 main = do
