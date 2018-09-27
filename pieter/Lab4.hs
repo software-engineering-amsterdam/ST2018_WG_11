@@ -70,7 +70,7 @@ type Rel a = [(a,a)]
 -- Example: [(1,2),(2,3),(3,4)] -> [(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)]
 symClos :: Ord a => Rel a -> Rel a
 symClos xs = xs ++ [(swap x) | x <- xs, not ((swap x) `elem` xs)]
-tr1 = [(1,2),(2,3),(3,4)]
+
 
 -- Exercise 6
 infixr 5 @@
@@ -81,9 +81,27 @@ r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 tr2 = [(1,1)]
 -- returns the transitive closure of the relation
 -- Example: [(1,2),(2,3),(3,4)] -> [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]
+-- If we only apply the transitivity once new relations dont get tested on transitivity.
+-- So Reapply the function untill no new relations can be found.
+-- When no new relations can be found it is fully transitive.
 trClos :: Ord a => Rel a -> Rel a 
-trClos xs = nub (xs ++ (xs @@ xs))
--- this should be repeated because new relations also need to be tested on transitivity
+trClos xs | (nub (clos ++ (clos @@ clos)) == clos) = clos
+          | otherwise = (trClos clos)
+                where clos = nub (xs ++ (xs @@ xs))
+
+assignment6 = do
+    putStrLn "exercise 6"
+    putStrLn "Create transitive closure"
+    let tr1 = [(1,2),(2,3),(3,4)]
+    putStrLn $ "input -> " ++ show (tr1)
+    putStrLn $ "   output -> " ++ show (trClos(tr1))
+    let tr2 = [(1,1),(2,2)]
+    putStrLn $ "input -> " ++ show (tr2)
+    putStrLn $ "   output -> " ++ show (trClos(tr2))
+    let tr3 = [(1,2),(2,1)]
+    putStrLn $ "input -> " ++ show (tr3)
+    putStrLn $ "   output -> " ++ show (trClos(tr3))
+
 
 main = do
     print "yoyoy"
@@ -91,4 +109,6 @@ main = do
     print "nog"
     genList
     quickCheck testDouble
+
+    assignment6
     
