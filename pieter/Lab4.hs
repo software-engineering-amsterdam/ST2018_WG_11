@@ -23,7 +23,7 @@ genList :: IO (Set Int)
 genList = do
     length <- (randomRIO (1,20))
     xs <- (randomList length)
-    return (Set xs)
+    return (Set (sort (nub xs)))
 
 -- credit https://stackoverflow.com/a/30741139
 randomList :: Int -> IO([Int])
