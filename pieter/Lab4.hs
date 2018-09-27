@@ -155,21 +155,41 @@ assignment6 = do
     putStrLn $ "input -> " ++ show (tr3)
     putStrLn $ "   output -> " ++ show (trClos(tr3))
 
--- Exercise 7
+-- Exercise 7 60 minutes
 
+-- Test for symmetry
+-- For all if (a,b) is in the set then (b,a) should also be in the set
 testSymmetry :: (Ord a) => Rel a -> Bool
 testSymmetry xs = all (==True) [(swap x) `elem` sym  | x <- sym]
             where sym = (symClos xs)
 
--- testTransitivity :: (Ord a) => Rel a -> Bool
--- testTransitivity xs = 
---             where trans = (trClos xs)
+-- Test for transitivity
+-- First make the direct connections for each element in the set.
+-- Then create a new element which links the first and second so (a,b),(b,c)->(a,c)
+-- Check if the composed element is also in the list.
+-- If one of these composed elements is not in the list it is not transitive.
+testTransitivity :: (Ord a) => Rel a -> Bool
+testTransitivity xs = all (==True) (concat [[((a,d) `elem` trans) |(c,d) <- trans,c==b] | (a,b) <- trans])
+            where trans = (trClos xs)
 
 assignment7 = do
     putStrLn "Exercise 7"
     putStrLn "Test symetry"
     quickCheck (testSymmetry :: Rel Int -> Bool)
     putStrLn "Test transitivity"
+    quickCheck (testTransitivity :: Rel Int -> Bool)
+
+-- Exercise 8
+-- By generating random relations and checking if it's the same we can check the equivalence
+-- If the combinations are equal the quickcheck should always pass all tests
+testEquivalence :: (Ord a) => Rel a -> Bool
+testEquivalence xs = trClos (symClos xs) == symClos(trClos xs)
+
+assignment8 = do
+    putStrLn "Exercise 8"
+    putStrLn "This should fail"
+    -- Since it does not pass all tests we can say they are not equal
+    quickCheck (testEquivalence :: Rel Int -> Bool)
 
 main = do
     print "yoyoy"
@@ -181,4 +201,5 @@ main = do
     assignment5
     assignment6
     assignment7
+    assignment8
     
