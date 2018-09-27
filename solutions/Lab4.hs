@@ -99,7 +99,7 @@ assignment2 = do
     quickCheck (isValidSet :: Set Int -> Bool)
 
 
--- 3 Time: 1 hour + 30 min
+-- 3
 {-
     Implement operations for set intersection, set union and set 
     difference, for the datatype Set defined in SetOrd.hs. Next, 
@@ -284,7 +284,8 @@ assignment6 = do
     let tr3 = [(1,2),(2,1)]
     putStrLn $ "input -> " ++ show (tr3)
     putStrLn $ "   output -> " ++ show (trClos(tr3))
--- 7 time: 1 hour + 30 minuts
+
+-- 7
 
 {-
     Test the functions symClos and trClos from the previous exercises. 
