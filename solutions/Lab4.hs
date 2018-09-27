@@ -7,9 +7,12 @@ import Test.QuickCheck
 import Lecture4
 import SetOrd
 
--- 1 2 hours
+-- 1
 
 {-
+    Pretty much everything was clear but some exercises and
+    examples were vague like exercise 4.33 and 4.34
+
     Did not know this: A − B = { x | x ∈ A ∧ x 6∈ B } their difference.
 
     Useful: A 6⊆ B ⇔ A − B 6 = ∅
@@ -20,7 +23,7 @@ import SetOrd
     false, hence the implication i ∈ I ⇒ x ∈ A i true
 -}
 
--- 2 Time: 1.5 Hours
+-- 2
 {-
     Implement a random data generator for the datatype Set Int,
     where Set is as defined in SetOrd.hs. First do this from 
@@ -28,19 +31,43 @@ import SetOrd
     test this datatype.
 -}
 
--- Removes duplicates and sorts from lesser to greater
-quickSort :: (Eq a, Ord a) => [a] -> [a]
-quickSort [] = []
-quickSort (x:xs) = (quickSort lesser) ++ [x] ++ (quickSort greater) where
-    lesser = filter (\y -> y < x) xs
-    greater = filter (\y -> y > x) xs
+genList :: IO (Set Int)
+genList = do
+    length <- (randomRIO (0,50))
+    xs <- (randomList length)
+    return (Set (sort (nub xs)))
+
+-- credit https://stackoverflow.com/a/30741139
+randomList :: Int -> IO([Int])
+randomList 0 = return []
+randomList n = do
+  r  <- randomRIO (-100,100)
+  rs <- randomList (n-1)
+  return (r:rs)   
+
+-- simple test functions to see if quickcheck works
+doubleList :: Set Int -> Set Int
+doubleList (Set xs) = Set [x*2 | x <- xs]
+
+testDouble :: Set Int -> Bool
+testDouble (Set xs) = (doubleList (Set xs)) == Set (map (*2) xs)
+
+myGen :: (Set Int -> Bool) -> Int -> IO [Char]
+myGen f count = do
+    list <-genList
+    nextTest <- if count > 0 then myGen f (count - 1) else return ("Test failed " ++ show list)
+    return (if (f list) then "All tests passed" else nextTest)
+
+ownQuickCheck :: (Set Int -> Bool) -> IO [Char]
+ownQuickCheck f = myGen f 100
+
 
 -- Some help from:
 -- http://geekyplatypus.com/y-u-have-no-code-samples-quickcheck/
 instance (Arbitrary a, Ord a, Eq a) => Arbitrary (Set a) where
     arbitrary = do
                 list <- arbitrary
-                return $ Set (quickSort list)
+                return $ Set (sort (nub list))
 
 -- Create a random Set Int
 randomIntSet :: IO (Set Int)
