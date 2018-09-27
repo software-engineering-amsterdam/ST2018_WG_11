@@ -21,7 +21,7 @@ instance (Arbitrary a,Ord a) => Arbitrary (Set a) where
 
 genList :: IO (Set Int)
 genList = do
-    length <- (randomRIO (1,20))
+    length <- (randomRIO (0,50))
     xs <- (randomList length)
     return (Set (sort (nub xs)))
 
@@ -35,10 +35,38 @@ randomList n = do
 
 -- simple test functions to see if quickcheck works
 doubleList :: Set Int -> Set Int
-doubleList (Set xs) = Set (map (*2) xs)
+doubleList (Set xs) = Set [x*2 | x <- xs]
 
 testDouble :: Set Int -> Bool
 testDouble (Set xs) = (doubleList (Set xs)) == Set (map (*2) xs)
+
+myGen :: (Set Int -> Bool) -> Int -> IO [Char]
+myGen f count = do
+    list <-genList
+    nextTest <- if count > 0 then myGen f (count - 1) else return ("Test failed " ++ show list)
+    return (if (f list) then "All tests passed" else nextTest)
+
+ownQuickCheck :: (Set Int -> Bool) -> IO [Char]
+ownQuickCheck f = myGen f 100
+
+-- testOwnGenerator = do
+--     list <- genList
+--     let tested = ((doubleList list) == (function list))
+--     if tested
+--         then
+--             putStrLn $ "test passed" ++ (show list)
+--         else
+--             putStrLn $ "test failed" ++ (show list)
+--     return tested
+--     where function = (\(Set xs) -> Set (map (*2) xs))
+
+-- ownQuickCheck fun = do
+--     x <- (sequence [fun | x <- [0..99]])
+--     if (all (==True) x) 
+--         then print "All tests Passed" 
+--         else print "Not all passed"
+
+
 
 -- This is already implemented in the provided SetOrd library
 -- unionSet :: (Ord a) => Set a -> Set a -> Set a 
@@ -169,8 +197,15 @@ testSymmetry xs = all (==True) [(swap x) `elem` sym  | x <- sym]
 -- Check if the composed element is also in the list.
 -- If one of these composed elements is not in the list it is not transitive.
 testTransitivity :: (Ord a) => Rel a -> Bool
-testTransitivity xs = all (==True) (concat [[((a,d) `elem` trans) |(c,d) <- trans,c==b] | (a,b) <- trans])
+testTransitivity xs = clause1 && clause2
             where trans = (trClos xs)
+                  -- Standard clause for checking if all the elements transitively trace back
+                  clause1 = all (==True) (concat [[((a,d) `elem` trans) |(c,d) <- trans,c==b] | (a,b) <- trans])
+                  -- Do some other checks to test that not too much elements are present (not perfect yet)
+                  clause2 = all (==True) [(a `elem` seconds) || (b `elem` firsts) || ((a `elem` firsts) && (b `elem` seconds)) |(a,b) <- trans]
+                  firsts = [x | (x,_) <- xs]
+                  seconds = [x | (_,x) <- xs]
+
 
 assignment7 = do
     putStrLn "Exercise 7"
