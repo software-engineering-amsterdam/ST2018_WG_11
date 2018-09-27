@@ -32,6 +32,8 @@ import SetOrd
     test this datatype.
 -}
 
+-- Generate list of random integers sorted and withouth duplicates
+-- Use this function to determine length of the list
 genList :: IO (Set Int)
 genList = do
     length <- (randomRIO (0,50))
@@ -53,12 +55,14 @@ doubleList (Set xs) = Set [x*2 | x <- xs]
 testDouble :: Set Int -> Bool
 testDouble (Set xs) = (doubleList (Set xs)) == Set (map (*2) xs)
 
+-- Generate random input and test this n times
 myGen :: (Set Int -> Bool) -> Int -> IO [Char]
 myGen f count = do
     list <-genList
     nextTest <- if count > 0 then myGen f (count - 1) else return ("Test failed " ++ show list)
     return (if (f list) then "All tests passed" else nextTest)
 
+-- mimic quickcheck functionality
 ownQuickCheck :: (Set Int -> Bool) -> IO [Char]
 ownQuickCheck f = myGen f 100
 
