@@ -71,14 +71,25 @@ type Rel a = [(a,a)]
 symClos :: Ord a => Rel a -> Rel a
 symClos xs = xs ++ [(swap x) | x <- xs, not ((swap x) `elem` xs)]
 
+assignment5 = do
+    putStrLn "exercise 5"
+    putStrLn "Create symetric closure"
+    let tr1 = [(1,2),(2,3),(3,4)]
+    putStrLn $ "input -> " ++ show (tr1)
+    putStrLn $ "   output -> " ++ show (symClos(tr1))
+    let tr2 = [(1,1),(2,2)]
+    putStrLn $ "input -> " ++ show (tr2)
+    putStrLn $ "   output -> " ++ show (symClos(tr2))
+    let tr3 = [(1,2),(2,1)]
+    putStrLn $ "input -> " ++ show (tr3)
+    putStrLn $ "   output -> " ++ show (symClos(tr3))
 
--- Exercise 6
+-- Exercise 6 40 minutes
 infixr 5 @@
 
 (@@) :: Eq a => Rel a -> Rel a -> Rel a
 r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
-tr2 = [(1,1)]
 -- returns the transitive closure of the relation
 -- Example: [(1,2),(2,3),(3,4)] -> [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]
 -- If we only apply the transitivity once new relations dont get tested on transitivity.
