@@ -14,10 +14,10 @@ import System.Random
 
 -- Exercise 2
 -- 60 minutes
-instance Arbitrary a => Arbitrary (Set a) where
+instance (Arbitrary a,Ord a) => Arbitrary (Set a) where
     arbitrary = do
         xs <- arbitrary
-        return (Set xs)
+        return (Set (sort (nub xs)))
 
 genList :: IO (Set Int)
 genList = do
@@ -46,7 +46,7 @@ testDouble (Set xs) = (doubleList (Set xs)) == Set (map (*2) xs)
 -- unionSet (Set (x:xs)) set2  = 
 --    insertSet x (unionSet (Set xs) set2)
 
--- Exercise 3 upto now like 30 minutes
+-- Exercise 3 60 minutes
 
 intersectionSet :: (Ord a) => Set a -> Set a -> Set a
 intersectionSet (Set []) _ = Set []
@@ -61,6 +61,48 @@ differenceSet (Set xs) (Set ys) = Set ([p | p <- xs, not( p `elem` ys)] ++ [q | 
 ts1 = Set [1,2,3,4,5]
 ts2 = Set [4,5,6,7]
 
+-- intersectionTest :: (Ord a) => Set a -> Set a -> Bool
+-- intersectionTest (Set []) ys = (intersectionSet (Set []) ys) == Set []
+-- intersectionTest xs (Set []) = (intersectionSet xs (Set [])) == Set []
+-- intersectionTest (Set xs) (Set ys) = all (==True) ([(x `elem` intersection) && (not (x `elem` difY)) | x <- xs] ++
+--                                      [(y `elem` intersection) && (not (y `elem` difX)) | y <- ys])
+--                                         where (Set intersection) = intersectionSet (Set xs) (Set ys)
+--                                               difX = intersection \\ ys
+--                                               difY = intersection \\ xs
+
+-- Test intersection
+-- Elements should be in both sets
+intersectionTest :: (Ord a) => Set a -> Set a -> Bool
+intersectionTest (Set xs) (Set ys) = all (==True) [(z `elem` xs) && (z `elem` ys) && (not (z `elem` dif)) | z <-intersection]
+                    where (Set intersection) = intersectionSet (Set xs) (Set ys)
+                          (Set dif) = differenceSet (Set xs) (Set ys)
+
+-- Simple xor function
+xor :: Bool -> Bool -> Bool
+xor x y = (x || y) && not (x && y)
+
+-- Test difference
+-- Elements should be in one set but not both and should be in the union of both
+differenceTest :: (Ord a) => Set a -> Set a -> Bool
+differenceTest (Set xs) (Set ys) = all (==True) [((z `elem` xs) `xor` (z `elem` ys)) && (z `elem` union) | z <- dif]
+                where (Set union) = unionSet (Set xs) (Set ys)
+                      (Set dif) = differenceSet (Set xs) (Set ys)
+
+-- Test union function form SetOrd
+-- Elements should be in either one of two sets
+unionTest :: (Ord a) => Set a -> Set a -> Bool
+unionTest (Set xs) (Set ys) = all (==True) [(z `elem` xs) || (z `elem` ys) | z <- union]
+                    where (Set union) = unionSet (Set xs) (Set ys)
+
+assignment3 = do
+    putStrLn "Exercise 3"
+    putStrLn "Test intersection"
+    quickCheck (intersectionTest :: Set Int -> Set Int -> Bool)
+    putStrLn "Test difference"
+    quickCheck (differenceTest :: Set Int -> Set Int -> Bool)
+    putStrLn "Test union"
+    quickCheck (unionTest :: Set Int -> Set Int -> Bool)
+
 -- Exercise 4 Read Chapter 5 of The Haskell Road
 
 -- Exercise 5 20 minutes
@@ -69,10 +111,10 @@ type Rel a = [(a,a)]
 -- returns the symetric closure of the relations
 -- Example: [(1,2),(2,3),(3,4)] -> [(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)]
 symClos :: Ord a => Rel a -> Rel a
-symClos xs = xs ++ [(swap x) | x <- xs, not ((swap x) `elem` xs)]
+symClos xs = sort(xs ++ [(swap x) | x <- xs, not ((swap x) `elem` xs)])
 
 assignment5 = do
-    putStrLn "exercise 5"
+    putStrLn "Exercise 5"
     putStrLn "Create symetric closure"
     let tr1 = [(1,2),(2,3),(3,4)]
     putStrLn $ "input -> " ++ show (tr1)
@@ -96,12 +138,12 @@ r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 -- So Reapply the function untill no new relations can be found.
 -- When no new relations can be found it is fully transitive.
 trClos :: Ord a => Rel a -> Rel a 
-trClos xs | (nub (clos ++ (clos @@ clos)) == clos) = clos
+trClos xs | (nub (clos ++ (clos @@ clos)) == clos) = sort clos
           | otherwise = (trClos clos)
                 where clos = nub (xs ++ (xs @@ xs))
 
 assignment6 = do
-    putStrLn "exercise 6"
+    putStrLn "Exercise 6"
     putStrLn "Create transitive closure"
     let tr1 = [(1,2),(2,3),(3,4)]
     putStrLn $ "input -> " ++ show (tr1)
@@ -113,6 +155,21 @@ assignment6 = do
     putStrLn $ "input -> " ++ show (tr3)
     putStrLn $ "   output -> " ++ show (trClos(tr3))
 
+-- Exercise 7
+
+testSymmetry :: (Ord a) => Rel a -> Bool
+testSymmetry xs = all (==True) [(swap x) `elem` sym  | x <- sym]
+            where sym = (symClos xs)
+
+-- testTransitivity :: (Ord a) => Rel a -> Bool
+-- testTransitivity xs = 
+--             where trans = (trClos xs)
+
+assignment7 = do
+    putStrLn "Exercise 7"
+    putStrLn "Test symetry"
+    quickCheck (testSymmetry :: Rel Int -> Bool)
+    putStrLn "Test transitivity"
 
 main = do
     print "yoyoy"
@@ -120,6 +177,8 @@ main = do
     print "nog"
     genList
     quickCheck testDouble
-
+    assignment3
+    assignment5
     assignment6
+    assignment7
     
