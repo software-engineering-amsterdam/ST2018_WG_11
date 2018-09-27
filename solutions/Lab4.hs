@@ -302,8 +302,8 @@ testSymmetry xs = all (==True) [(swap x) `elem` sym  | x <- sym]
 
 -- If (a,b) ∈ A ^ (b,c) ∈ A -> (a,c) ∈ A
 -- If (a,b) ∈ A -> some (a,_) ∈ A ^ some (_,b) ∈ A
-checktrClos :: Ord a => Rel a -> Bool
-checktrClos xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos, 
+testTransitivity :: Ord a => Rel a -> Bool
+testTransitivity xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos, 
                     (c,d) <- trclos, b == c])
                     where 
                         trclos = trClos xs
@@ -311,9 +311,9 @@ checktrClos xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos,
 assignment7 = do
     print ("Assingment 7")
     putStrLn "Test symetry"
-    quickCheck (testEquivalence :: Rel Int -> Bool)
+    quickCheck (testSymmetry :: Rel Int -> Bool)
     putStrLn "Test transitivity"
-    quickCheck (checktrClos :: Rel Int -> Bool)
+    quickCheck (testTransitivity :: Rel Int -> Bool)
 
 -- 8
 
@@ -336,9 +336,9 @@ testEquivalence xs = trClos (symClos xs) == symClos(trClos xs)
 assignment8 = do
     print ("Assingment 8")
     print ("yes it matters Example Rel [(0,1)]")
-    putStrLn "First symmetry"
+    putStrLn "Transitivity (Symmetry xs)"
     print (trClos (symClos ([(0,1)])))
-    putStrLn "First transitivity"
+    putStrLn "Symmetry (Transitivity xs)"
     print (symClos (trClos ([(0,1)])))
     putStrLn "QuickCheck should fail"
     quickCheck (testEquivalence :: Rel Int -> Bool)
