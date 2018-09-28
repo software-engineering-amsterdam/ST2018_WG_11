@@ -307,6 +307,7 @@ testTransitivity xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos,
                     (c,d) <- trclos, b == c])
                     where 
                         trclos = trClos xs
+-- TODO does not check for smallest transitive closure yet
 
 assignment7 = do
     print ("Assingment 7")
