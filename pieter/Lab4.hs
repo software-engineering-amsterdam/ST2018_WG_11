@@ -132,6 +132,8 @@ assignment3 = do
     quickCheck (unionTest :: Set Int -> Set Int -> Bool)
 
 -- Exercise 4 Read Chapter 5 of The Haskell Road
+-- Read but no real questions about it
+
 
 -- Exercise 5 20 minutes
 type Rel a = [(a,a)]
