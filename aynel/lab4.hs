@@ -23,8 +23,8 @@ import SetOrd
        >> we solve this by defining a special data type for sets, with a matching definition of equality
 
 
-       Keep in mind:
-       - The Haskell operation for list difference is predefined as \\ in List.hs
+    Keep in mind:
+    - The Haskell operation for list difference is predefined as \\ in List.hs
 -}
 
 -- 2. Random Data Generator. Time: 30-35 mins
@@ -55,9 +55,10 @@ assignment2 = do
     quickCheck (isValid :: Set Int -> Bool)
 
 
--- setToList (Set a) = a
-
 -- 3. Operations for set intersection, set union and set difference. Time: 50 +... min
+
+-- might be usefull:
+-- setToList (Set a) = a
 
 xor :: Bool -> Bool -> Bool
 xor x y | x == True && y == False = True
@@ -93,7 +94,23 @@ assignment3 = do
     quickCheck (testInter :: Set Int -> Set Int -> Bool)
 
 
--- 4. Questions 'The Haskell Road' Chapter 5. Time: ...
+-- 4. Questions 'The Haskell Road' Chapter 5. Time: vanaf 13:20
+
+{-
+    1. "Equivalence relations on a set A enable us to partition the set A into equivalence classes" (page 193)
+       (and Definition 5.75 etc) not very clear. What do they mean? 5.7 gives an impression, but the definition
+       is still quite abstract.
+
+    Keep in mind:
+    - reflexivity     ∀x xRx.
+    - irreflexivity   ∀x ¬xRx.
+    - symmetry        ∀xy (xRy ⇒ yRx).
+    - asymmetry       ∀xy (xRy ⇒ ¬yRx).
+    - antisymmetry    ∀xy (xRy ∧ yRx ⇒ x = y).
+    - transitivity    ∀xyz (xRy ∧ yRz ⇒ xRz).
+    - intransitivity  ∀xyz (xRy ∧ yRz ⇒ ¬xRz).
+    - linearity       ∀xy (xRy ∨ yRx ∨ x = y)
+-}
 
 -- 5. Function for symmetric closure of a relation. Time: 15 mins
 type Rel a = [(a,a)]
