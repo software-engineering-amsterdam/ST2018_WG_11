@@ -14,14 +14,27 @@ import SetOrd
     Pretty much everything was clear but some exercises and
     examples were vague like exercise 4.33 and 4.34
 
-    Did not know this: A − B = { x | x ∈ A ∧ x 6∈ B } their difference.
-
-    Useful: A 6⊆ B ⇔ A − B 6 = ∅
-            A ∩ B = A − (A − B)
+    1. Example 4.6: There is no set corresponding to the property F (x)... too arbitrary! (page 121)
+    2. The halting problem is not entirely clear: how exactly can 'undefined' be used? 
+    3. Difficulty of using lists as sets: they have different identity conditions.
+       Sets are unordered, lists are ordered, but we can use lists to represent finite
+       (or countably infinite) sets by representing sets as lists with duplicates removed, 
+       and by disregarding the order. What are some limitations still? Not clear! (page 149)
+       The only one given: 
+       The representation of sets as lists without duplicates has the drawback that two finite lists 
+       containing the same elements, but in a different order, e.g., [1,2,3] and [3,2,1], are unequal 
+       as lists, but equal as sets. The Haskell equality operator == gives the wrong results when we 
+       are interested in set equality.
+       >> we solve this by defining a special data type for sets, with a matching definition of equality
     
-    A i is the collection of all sets. This last fact is an example of a
-    trivially true implication: if I = ∅, then every statement i ∈ I is 
-    false, hence the implication i ∈ I ⇒ x ∈ A i true
+    
+    Keep in mind:
+    - Did not know this: A − B = { x | x ∈ A ∧ x 6∈ B } their difference.
+    - Useful: A 6⊆ B ⇔ A − B 6 = ∅
+              A ∩ B = A − (A − B)
+    - A i is the collection of all sets. This last fact is an example of a
+      trivially true implication: if I = ∅, then every statement i ∈ I is 
+      false, hence the implication i ∈ I ⇒ x ∈ A i true
 -}
 
 -- 2
@@ -169,40 +182,43 @@ assignment3 = do
 -- 4
 
 {-
-    Definition 5.1 (Relations, Domain, Range) A relation is a set of 
+    1. "Equivalence relations on a set A enable us to partition the set A into equivalence classes" (page 193)
+       (and Definition 5.75 etc) not very clear. What do they mean? 5.7 gives an impression, but the definition
+       is still quite abstract.
+
+    Keep in mind:
+    - Definition 5.1 (Relations, Domain, Range) A relation is a set of 
     ordered pairs. Instead of (x, y) ∈ R — where R is a relation — one 
     usually writes xRy, or R(x, y), or Rxy. The set dom (R) = 
     {x | ∃y ( xRy )}, i.e., the set consisting of all first coordinates
     of pairs in R, is called the domain of R and ran(R) = {y | ∃x ( xRy )},
     the set of second coordinates of pairs in R, its range.
 
-    Definition 5.3 (From . . . to, Between, On) The relation R is a 
+    - Definition 5.3 (From . . . to, Between, On) The relation R is a 
     relation from A to B or between A and B, if dom (R) ⊆ A and ran(R) ⊆ B.
     A relation from A to A is called on A.
 
-    reflexive on A if for every x ∈ A: xRx.
-    irreflexive if for no x ∈ A: xRx.
-    symmetric if for all x, y ∈ A: if xRy then yRx.
-    asymmetric if for all x, y ∈ A: if xRy then not yRx.
-    antisymmetric if for all x, y ∈ A: if xRy and yRx then x = y
-    transitive if for all x, y, z ∈ A: if xRy and yRz then xRz.
-    intransitive if for all x, y, z ∈ A: if xRy and yRz then not xRz.
-    pre-order (or quasi-order) if R is transitive and reflexive.
-    strict partial order if R is transitive and irreflexive
-    partial order if R is transitive, reflexive and antisymmetric.
-    linear (or: has the comparison property) if for all x, y ∈ A: xRy or yRx or x = y.
+    - reflexive on A if for every x ∈ A: xRx.
+    - irreflexive if for no x ∈ A: xRx.
+    - symmetric if for all x, y ∈ A: if xRy then yRx.
+    - asymmetric if for all x, y ∈ A: if xRy then not yRx.
+    - antisymmetric if for all x, y ∈ A: if xRy and yRx then x = y
+    - transitive if for all x, y, z ∈ A: if xRy and yRz then xRz.
+    - intransitive if for all x, y, z ∈ A: if xRy and yRz then not xRz.
+    - pre-order (or quasi-order) if R is transitive and reflexive.
+    - strict partial order if R is transitive and irreflexive
+    - partial order if R is transitive, reflexive and antisymmetric.
+    - linear (or: has the comparison property) if for all x, y ∈ A: xRy or yRx or x = y.
     
-    reflexivity     ∀x xRx.
-    irreflexivity   ∀x ¬xRx.
-    symmetry        ∀xy (xRy ⇒ yRx).
-    asymmetry       ∀xy (xRy ⇒ ¬yRx).
-    antisymmetry    ∀xy (xRy ∧ yRx ⇒ x = y).
-    transitivity    ∀xyz (xRy ∧ yRz ⇒ xRz).
-    intransitivity  ∀xyz (xRy ∧ yRz ⇒ ¬xRz).
-    linearity       ∀xy (xRy ∨ yRx ∨ x = y)
-
+    - reflexivity     ∀x xRx.
+    - irreflexivity   ∀x ¬xRx.
+    - symmetry        ∀xy (xRy ⇒ yRx)
+    - asymmetry       ∀xy (xRy ⇒ ¬yRx)
+    - antisymmetry    ∀xy (xRy ∧ yRx ⇒ x = y)
+    - transitivity    ∀xyz (xRy ∧ yRz ⇒ xRz)
+    - intransitivity  ∀xyz (xRy ∧ yRz ⇒ ¬xRz)
+    - linearity       ∀xy (xRy ∨ yRx ∨ x = y)
 -}
-
 
 
 -- 5
