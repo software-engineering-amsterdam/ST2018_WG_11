@@ -6,6 +6,7 @@ import Data.Tuple
 import Test.QuickCheck
 import SetOrd
 import System.Random
+import Lecture4
 
 -- Exercise 1 Read Chapter 4 of The Haskell Road
 -- 90 minutes
@@ -132,6 +133,8 @@ assignment3 = do
     quickCheck (unionTest :: Set Int -> Set Int -> Bool)
 
 -- Exercise 4 Read Chapter 5 of The Haskell Road
+-- Read but no real questions about it
+
 
 -- Exercise 5 20 minutes
 type Rel a = [(a,a)]
@@ -226,6 +229,69 @@ assignment8 = do
     -- Since it does not pass all tests we can say they are not equal
     quickCheck (testEquivalence :: Rel Int -> Bool)
 
+-- Bonus exercise
+-- Remove Show from the declerations in the Lecture4 class
+
+-- Overwrite show for expressions
+instance Show Expr where
+    show (I x) = show x
+    show (V x) = show x
+    show (Add e1 e2) = "("++show e1 ++ " + " ++ show e2++")"
+    show (Subtr e1 e2) = "("++show e1 ++ " - " ++ show e2++")"
+    show (Mult e1 e2) = "("++show e1 ++ " * " ++ show e2++")"
+
+-- Overwrite show for conditions
+instance Show Condition where
+    show (Prp v) = (show v)
+    show (Eq e1 e2) = "("++(show e1)++" == "++(show e2)++")"
+    show (Lt e1 e2) = "("++(show e1)++" < "++(show e2)++")"
+    show (Gt e1 e2) = "("++(show e1)++" > "++(show e2)++")"
+    show (Ng e) = "(-"++(show e)++")"
+    -- Looks weird but the head and tail are for preventing trailing operators
+    show (Cj xs) = "("++concat ([show(head xs)]++[" ^ "++(show x) | x <- (tail xs)])++")"
+    show (Dj xs) = "("++concat ([show(head xs)]++[" v "++(show x) | x <- (tail xs)])++")"
+    
+-- Overwrite show for statements
+instance Show Statement where
+    show (Ass v e) = (show v) ++ " = " ++ (show e)
+    -- Add some spaces to make the the clauses super fancy looking
+    show (Cond c s1 s2) = "if "++(show c)++" then\n    "++(show s1)++"\nelse\n    "++(show s2)
+    -- Head and tail is for preventing trailing newline
+    show (Seq xs) = concat ([show (head xs)]++["\n"++(show x) | x <-tail xs])
+    show (While c s) = "while "++(show c)++" then\n    "++(show s)
+
+assignmentBonus = do
+    -- Declare some test variables
+    let e1 = I 10
+    let e2 = V "foo"
+    let e3 = Add e1 e2
+    let e4 = Subtr e1 e2
+    let e5 = Mult e1 e2
+
+    let p1 = Prp "p1"
+    let p2 = Prp "p2"
+
+    let c1 = p1
+    let c2 = Eq e3 e2
+    let c3 = Lt e3 e2
+    let c4 = Gt e3 e2
+    let c5 = Cj [p1,p2,p1,Ng p2]
+    let c6 = Dj [p1,p2,p1,Ng p2]
+
+    let s1 = Ass "bar" e3
+    let s2 = Ass "boo" e1
+    let s3 = Cond c2 s1 s2
+    let s4 = While c1 s2
+    let s5 = Seq [s1,s2,s3,s4]
+
+    putStrLn "Bonus exercise"
+    putStrLn "Expressions"    
+    sequence (map print [e1,e2,e3,e4,e5])
+    putStrLn "Conditions"
+    sequence (map print [c1,c2,c3,c4,c5,c6])
+    putStrLn "Statements"
+    print s5
+
 main = do
     print "yoyoy"
     generate arbitrary :: IO (Set Int)
@@ -237,4 +303,4 @@ main = do
     assignment6
     assignment7
     assignment8
-    
+    assignmentBonus
