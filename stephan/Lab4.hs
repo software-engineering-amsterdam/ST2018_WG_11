@@ -251,14 +251,24 @@ startingWith x xs = [(a,b)| (a,b) <- xs, a == x]
 endingWith :: (Eq a) => a-> Rel a -> Rel a
 endingWith x xs = [(a,b)| (a,b) <- xs, b == x]
 
+-- this is always the smallest closure
+-- (R U R*R U R^2*R U R^3*R) until R^n = EmptySet
+smallestClose :: Ord a => Rel a -> Rel a -> Rel a 
+smallestClose [] _ = []
+smallestClose xs ys | (xs @@ ys) \\ xs == [] = xs
+                    | otherwise = nub (sort (xs ++ (smallestClose (xs @@ ys) ys)))
+
+
 -- If (a,b) ∈ A ^ (b,c) ∈ A -> (a,c) ∈ A
--- If (a,b) ∈ A -> some (a,_) ∈ A ^ some (_,b) ∈ A
+-- Checks if smallest closure
 checktrClos :: Ord a => Rel a -> Bool
 checktrClos xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos, 
                     (c,d) <- trclos, b == c] ++
                     [not (null (startingWith a xs)) && not (null (endingWith b xs))| (a,b) <- trclos])
+                    && (smallestClose xs xs == trclos)               
                     where 
                         trclos = trClos xs
+
 
 assignment7 = do
     print ("Assingment 7")

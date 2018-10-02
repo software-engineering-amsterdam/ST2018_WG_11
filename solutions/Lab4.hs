@@ -300,13 +300,27 @@ testSymmetry :: Ord a => Rel a -> Bool
 testSymmetry xs = all (==True) [(swap x) `elem` sym  | x <- sym]
             where sym = (symClos xs)
 
+-- First test: 
 -- If (a,b) ∈ A ^ (b,c) ∈ A -> (a,c) ∈ A
--- If (a,b) ∈ A -> some (a,_) ∈ A ^ some (_,b) ∈ A
+-- Second test:
+-- If it is the smallest transitive closure
 testTransitivity :: Ord a => Rel a -> Bool
 testTransitivity xs = all (==True) ([elem (a,d) trclos| (a,b) <- trclos, 
-                    (c,d) <- trclos, b == c])
+                    (c,d) <- trclos, b == c]) &&
+                    smallestClosesure xs == trclos
                     where 
                         trclos = trClos xs
+
+-- Create smallest transitive closure
+smallestClosesure :: Ord a => Rel a -> Rel a
+smallestClosesure xs = smallestClose xs xs []
+
+-- (R U R*R U R^2*R U R^3*R .. U R^n) 
+-- until U(R^(n+1)) // U (R^n) = EmptySet
+smallestClose :: Ord a => Rel a -> Rel a -> Rel a -> Rel a 
+smallestClose [] _ u = nub (sort u)
+smallestClose rn r u | (rn @@ r) \\ u == [] = nub (sort (u ++ rn))
+                     | otherwise = smallestClose (rn @@ r) r (u++rn)
 
 assignment7 = do
     print ("Assingment 7")
