@@ -5,6 +5,7 @@ where
 
 import Data.List
 import System.Random
+import System.CPUTime
 
 type Row    = Int 
 type Column = Int 
@@ -323,7 +324,10 @@ nrcBlockConstrnt = [[(r,c) | r <- b1, c <- b2] |
                       b2 <- [[2..4],[6..8]]]
 
 -- By putting them in one list it should be easy for a user to add constraints
+constraintsList :: Constrnt
 constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt,nrcBlockConstrnt]
+-- If you want to test without NRC compliency comment above function and use below
+-- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]
 
 nrcExample :: Grid
 nrcExample = [[0,0,0,3,0,0,0,0,0],
@@ -336,7 +340,22 @@ nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,8,0,0,4,0,0,0,0],
               [0,0,2,0,0,0,0,0,0]] 
 
+
 assignment2 = do
   solveAndShow $ nrcExample
 
-
+assignment5 = do
+    putStrLn "Generating NRC complient sudoku"
+    start1 <- getCPUTime
+    [r] <- rsolveNs [emptyN]
+    showNode r
+    end1   <- getCPUTime
+    let diff1 = (fromIntegral (end1 - start1)) / (10^12)
+    putStrLn ("   generating took: " ++ (show diff1) ++ " seconds")
+    putStrLn "Generating minimalised problem"
+    start2 <- getCPUTime
+    s  <- genProblem r
+    showNode s
+    end2   <- getCPUTime
+    let diff2 = (fromIntegral (end2 - start2)) / (10^12)
+    putStrLn ("   minimizing took: " ++ (show diff2) ++ " seconds")

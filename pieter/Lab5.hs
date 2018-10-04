@@ -2,10 +2,10 @@ module Lab5 where
 
 import Data.List
 import System.Random
+import Control.Monad
 import System.CPUTime
-import Text.Printf
 import Lecture5_1 (assignment1)
-import Lecture5_2 (assignment2)
+import Lecture5_2 (assignment2,assignment5)
 
 
 -- Exercise 1 
@@ -39,23 +39,40 @@ Solution
 --  2d array of the cells that aren considered a set. and
 --  just add this 2d array to the list of constraints.
 
+-- TODO add tests for different sudoku's
+
 -- Function for comparing the runtime of functions
-time :: IO t -> IO t -> IO Double
 time a b = do
+    let nTimes = 1000000
     start1 <- getCPUTime
-    v1 <- a `seq` return ()
+    v1 <- replicateM nTimes (a `seq` return ())
     end1   <- getCPUTime
     start2 <- getCPUTime
-    v2 <- b `seq` return ()
+    v2 <- replicateM nTimes (b `seq` return ())
     end2   <- getCPUTime
     let diff1 = (fromIntegral (end1 - start1)) / (10^12)
     let diff2 = (fromIntegral (end2 - start2)) / (10^12)
     let diff = diff1 - diff2
-    putStrLn ""
+    putStrLn ("Ran test " ++ (show nTimes) ++ " times")
     putStrLn ("Time difference " ++ (show diff))
     putStrLn ("   Left time " ++ (show diff1))
     putStrLn ("   Right time " ++ (show diff2))
-    return diff
+
+-- Exercise 3
+
+
+-- Exercise 4
+
+-- Exercise 5
+-- 60 minutes
+-- Generating this tends to take a really long time.
+-- Expect somewhere between 50 and 100 seconds.
+-- The reason for this is minimalizing the sudoku.
+-- Because the constraints are tighter more values can be absent.
+-- This is logical because the more constraints -> the easier it is to fill in values.
+-- If more values are absent the tree runs way deeper.
+-- And because the tree is way deeper it takes more time to compute all possibilities.
+-- TODO: Add calculations to prove this.
 
 main = do 
     putStrLn "Exercise 1"
@@ -68,6 +85,9 @@ main = do
     time assignment1 assignment2
     time assignment1 assignment2
     time assignment1 assignment2
+
+    putStrLn "Exercise 5"
+    assignment5
 
 
     
