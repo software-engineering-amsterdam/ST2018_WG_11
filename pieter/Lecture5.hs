@@ -18,8 +18,9 @@ values    = [1..9]
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
 
+-- Nrc subsection
 altBlocks :: [[Int]]
-altBlocks = [[2..4],[6..8]]
+altBlocks = [[2..4],[6..8],[1,5,9]]
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -69,6 +70,7 @@ showSudoku = showGrid . sud2grid
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks 
 
+-- alternate way of determining subsections for nrc
 altBl :: Int -> [Int]
 altBl x = concat $ filter (elem x) altBlocks
 
@@ -76,6 +78,7 @@ subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
+-- Function for NRC subgrid
 nrcSubGrid :: Sudoku -> (Row,Column) -> [Value]
 nrcSubGrid s (r,c) = [ s (r',c') | r' <- altBl r, c' <- altBl c ]
 
@@ -93,6 +96,7 @@ freeInColumn s c =
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
+-- Function for free in NRC subgrid
 freeInNrcSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInNrcSubgrid s (r,c) = freeInSeq (nrcSubGrid s (r,c))
 
@@ -131,7 +135,8 @@ consistent s = and $
                [ subgridInjective s (r,c) | 
                     r <- [1,4,7], c <- [1,4,7]]
                 ++
-               [nrcSubgridInjective s (r,c)| r <- [2,6], c <- [2,6]]
+               [nrcSubgridInjective s (r,c)| 
+                    r <- [2,6], c <- [2,6]]
 
 extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
 extend = update
@@ -161,12 +166,17 @@ prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblock (r,c) (x,y) = 
-        (x,y,zs\\[v]) : prune (r,c,v) rest
+  | sameblock (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
+  -- add exte block checker here
+  | altSameBlock (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
-sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y
+
+-- Function for checking if it is also in the same nrc block
+altSameBlock :: (Row,Column) -> (Row,Column) -> Bool
+altSameBlock (r,c) (x,y) = altBl r == altBl x && altBl c == altBl y
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
@@ -275,7 +285,7 @@ example5 = [[1,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,6,0,0,0],
             [0,0,0,0,0,0,7,0,0],
             [0,0,0,0,0,0,0,8,0],
-            [0,0,0,0,0,0,0,0,9]]
+            [0,0,0,0,0,0,0,0,9]]  
 
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
@@ -366,26 +376,9 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
-seppuku = grid2sud example5
-test = do
-  -- showNode seppuku
-  showSudoku(seppuku)
-  -- print (bl 4)
-  -- print(subGrid seppuku (1,1))
-  -- print(subGrid seppuku (5,5))
-  -- print(subGrid seppuku (8,8))
-  -- print(nrcSubGrid seppuku (1,1))
-  -- print(nrcSubGrid seppuku (5,5))
-  -- print(nrcSubGrid seppuku (8,8))
-  -- print(subgridInjective seppuku (1,1))
-  -- print(subgridInjective seppuku (1,2))
-  -- print(subgridInjective seppuku (5,5))
-  -- print(subgridInjective seppuku (8,1))
-
 main :: IO ()
 main = do [r] <- rsolveNs [emptyN]
           showNode r
           s  <- genProblem r
           showNode s
-          test
 
