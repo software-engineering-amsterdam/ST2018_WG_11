@@ -1,5 +1,5 @@
 
-module Lecture5
+module Lecture5_1
 
 where 
 
@@ -20,7 +20,8 @@ blocks = [[1..3],[4..6],[7..9]]
 
 -- Nrc subsection
 altBlocks :: [[Int]]
-altBlocks = [[2..4],[6..8],[1,5,9]]
+-- altBlocks = [[2..4],[6..8],[1,5,9]]
+altBlocks = [[2..4],[6..8]]
 
 showVal :: Value -> String
 showVal 0 = " "
@@ -376,9 +377,22 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
-main :: IO ()
-main = do [r] <- rsolveNs [emptyN]
-          showNode r
-          s  <- genProblem r
-          showNode s
+-- main :: IO ()
+-- main = do [r] <- rsolveNs [emptyN]
+--           showNode r
+--           s  <- genProblem r
+--           showNode s
 
+nrcExample :: Grid
+nrcExample = [[0,0,0,3,0,0,0,0,0],
+              [0,0,0,7,0,0,3,0,0],
+              [2,0,0,0,0,0,0,0,8],
+              [0,0,6,0,0,5,0,0,0],
+              [0,9,1,6,0,0,0,0,0],
+              [3,0,0,0,7,1,2,0,0],
+              [0,0,0,0,0,0,0,3,1],
+              [0,8,0,0,4,0,0,0,0],
+              [0,0,2,0,0,0,0,0,0]] 
+
+assignment1 = do
+    solveAndShow nrcExample
