@@ -394,5 +394,5 @@ nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,8,0,0,4,0,0,0,0],
               [0,0,2,0,0,0,0,0,0]] 
 
-assignment1 = do
-    solveAndShow nrcExample
+assignment1 grid = do
+    solveAndShow $ grid

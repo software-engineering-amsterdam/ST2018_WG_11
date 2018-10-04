@@ -5,6 +5,7 @@ where
 
 import Data.List
 import System.Random
+import Control.Monad
 import System.CPUTime
 
 type Row    = Int 
@@ -163,61 +164,6 @@ solveAndShow gr = solveShowNs (initNode gr)
 solveShowNs :: [Node] -> IO[()]
 solveShowNs = sequence . fmap showNode . solveNs
 
-example1 :: Grid
-example1 = [[5,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]]
-
-example2 :: Grid
-example2 = [[0,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]]
-
-example3 :: Grid
-example3 = [[1,0,0,0,3,0,5,0,4],
-            [0,0,0,0,0,0,0,0,3],
-            [0,0,2,0,0,5,0,9,8], 
-            [0,0,9,0,0,0,0,3,0],
-            [2,0,0,0,0,0,0,0,7],
-            [8,0,3,0,9,1,0,6,0],
-            [0,5,1,4,7,0,0,0,0],
-            [0,0,0,3,0,0,0,0,0],
-            [0,4,0,0,0,9,7,0,0]]
-
-example4 :: Grid
-example4 = [[1,2,3,4,5,6,7,8,9],
-            [2,0,0,0,0,0,0,0,0],
-            [3,0,0,0,0,0,0,0,0],
-            [4,0,0,0,0,0,0,0,0],
-            [5,0,0,0,0,0,0,0,0],
-            [6,0,0,0,0,0,0,0,0],
-            [7,0,0,0,0,0,0,0,0],
-            [8,0,0,0,0,0,0,0,0],
-            [9,0,0,0,0,0,0,0,0]]
-
-example5 :: Grid
-example5 = [[1,0,0,0,0,0,0,0,0],
-            [0,2,0,0,0,0,0,0,0],
-            [0,0,3,0,0,0,0,0,0],
-            [0,0,0,4,0,0,0,0,0],
-            [0,0,0,0,5,0,0,0,0],
-            [0,0,0,0,0,6,0,0,0],
-            [0,0,0,0,0,0,7,0,0],
-            [0,0,0,0,0,0,0,8,0],
-            [0,0,0,0,0,0,0,0,9]]
-
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
 
@@ -292,6 +238,15 @@ eraseN :: Node -> (Row,Column) -> Node
 eraseN n (r,c) = (s, constraints s) 
   where s = eraseS (fst n) (r,c) 
 
+
+-- HIERRRRRRRRRRRRRRRRRRRRRRRR
+-- bl :: Int -> [Int]
+-- bl x = concat $ filter (elem x) blocks 
+
+-- eraseBlock :: Node -> (Row,Column) -> Node
+-- eraseBlock n (r,c) = [eraseN n (r1,c1) | r1 <- bl r, c1 <- bl c]
+-- HIERRRRRRRRRRRRRRRRRRRRRRRR
+
 minimalize :: Node -> [(Row,Column)] -> Node
 minimalize n [] = n
 minimalize n ((r,c):rcs) | uniqueSol n' = minimalize n' rcs
@@ -340,9 +295,17 @@ nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,8,0,0,4,0,0,0,0],
               [0,0,2,0,0,0,0,0,0]] 
 
+timingTest a = do
+    let nTimes = 1000000
+    start <- getCPUTime
+    v <- replicateM nTimes (a `seq` return ())
+    end   <- getCPUTime
+    let diff = (fromIntegral (end - start)) / (10^12)
+    putStrLn ("Ran test " ++ (show nTimes) ++ " times")
+    putStrLn ("Time difference " ++ (show diff))
 
-assignment2 = do
-  solveAndShow $ nrcExample
+assignment2 grid = do
+  solveAndShow $ grid
 
 assignment5 = do
     putStrLn "Generating NRC complient sudoku"
