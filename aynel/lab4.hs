@@ -94,7 +94,7 @@ assignment3 = do
     quickCheck (testInter :: Set Int -> Set Int -> Bool)
 
 
--- 4. Questions 'The Haskell Road' Chapter 5. Time: vanaf 13:20
+-- 4. Questions 'The Haskell Road' Chapter 5. Time: +/- 1.5 hours
 
 {-
     1. "Equivalence relations on a set A enable us to partition the set A into equivalence classes" (page 193)
@@ -135,6 +135,11 @@ r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 -- trClos :: Ord a => Rel a -> Rel a 
 
 -- 7. Test the functions symClos and trClos. Time: ...
+testSymClos :: Ord a => Rel a -> Bool
+testSymClos r = all (==True) [(swap x) `elem` sym  | x <- sym]
+            where sym = (symClos r)
+
+-- TO DO: TEST trClos
 
 -- 8. Is there a difference between the symmetric closure of the transitive closure of a relation R and the transitive closure of the symmetric closure of R?
 
