@@ -5,7 +5,7 @@ import System.Random
 import Control.Monad
 import System.CPUTime
 import Lecture5_1 (assignment1)
-import Lecture5_2 (assignment2,assignment5)
+import Lecture5_2 (assignment2,assignment4,assignment5)
 
 example1 :: [[Int]]
 example1 = [[5,3,0,0,7,0,0,0,0],
@@ -172,6 +172,9 @@ main = do
     time (assignment1 example3) (assignment2 example3)
     time (assignment1 example4) (assignment2 example3)
     time (assignment1 example5) (assignment2 example4)
+
+    putStrLn "\nExercise 4"
+    assignment4
 
     putStrLn "\nExercise 5"
     assignment5
