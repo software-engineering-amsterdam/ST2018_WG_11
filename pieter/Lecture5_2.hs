@@ -280,9 +280,20 @@ nrcBlockConstrnt = [[(r,c) | r <- b1, c <- b2] |
 
 -- By putting them in one list it should be easy for a user to add constraints
 constraintsList :: Constrnt
-constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt,nrcBlockConstrnt]
+-- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt,nrcBlockConstrnt]
 -- If you want to test without NRC compliency comment above function and use below
--- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]
+constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]
+
+-- TODO comment
+removeBlock :: Node -> (Row, Column) -> Node
+removeBlock n (r, c) = foldl (eraseN) n (concat [x | x <- blockConstrnt, (r,c) `elem` x])
+
+-- TODO comment
+removeRandomBlocks :: Node -> Int -> IO Node
+removeRandomBlocks node n = do 
+        options <- randomize [(x,y) | x <- [1,4,7], y <- [1,4,7]]
+        let choices = take n options      
+        return (foldl (\p q -> removeBlock p q) node choices)                      
 
 nrcExample :: Grid
 nrcExample = [[0,0,0,3,0,0,0,0,0],
@@ -306,6 +317,28 @@ timingTest a = do
 
 assignment2 grid = do
   solveAndShow $ grid
+
+removeAndMinimalize orig n = do
+  new <- removeRandomBlocks orig n
+  showNode new
+  let min = minimalize new (filledPositions (fst new))
+  showNode min
+
+
+assignment4 = do
+  -- Whole sudoku
+  [original] <- rsolveNs [emptyN]
+  showNode original
+
+  putStrLn "Remove 3 blocks from the original and try to minimalize."
+  removeAndMinimalize original 3
+  putStrLn "Remove 4 blocks from the original and try to minimalize."
+  removeAndMinimalize original 4
+  putStrLn "Remove 5 blocks from the original and try to minimalize."
+  removeAndMinimalize original 5
+
+
+
 
 assignment5 = do
     putStrLn "Generating NRC complient sudoku"
