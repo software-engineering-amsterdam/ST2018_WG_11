@@ -1,19 +1,14 @@
-module Lecture5_2
+module Lecture5
 
 where 
 
 import Data.List
 import System.Random
-import Control.Monad
-import System.CPUTime
 
 type Row    = Int 
 type Column = Int 
 type Value  = Int
 type Grid   = [[Value]]
-
-type Position = (Row,Column)
-type Constrnt = [[Position]]
 
 positions, values :: [Int]
 positions = [1..9]
@@ -67,12 +62,56 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
+bl :: Int -> [Int]
+bl x = concat $ filter (elem x) blocks 
+
+subGrid :: Sudoku -> (Row,Column) -> [Value]
+subGrid s (r,c) = 
+  [ s (r',c') | r' <- bl r, c' <- bl c ]
+
+freeInSeq :: [Value] -> [Value]
+freeInSeq seq = values \\ seq 
+
+freeInRow :: Sudoku -> Row -> [Value]
+freeInRow s r = 
+  freeInSeq [ s (r,i) | i <- positions  ]
+
+freeInColumn :: Sudoku -> Column -> [Value]
+freeInColumn s c = 
+  freeInSeq [ s (i,c) | i <- positions ]
+
+freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
+
+freeAtPos :: Sudoku -> (Row,Column) -> [Value]
+freeAtPos s (r,c) = 
+  (freeInRow s r) 
+   `intersect` (freeInColumn s c) 
+   `intersect` (freeInSubgrid s (r,c)) 
+
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
--- Updated to check all constraints
+rowInjective :: Sudoku -> Row -> Bool
+rowInjective s r = injective vs where 
+   vs = filter (/= 0) [ s (r,i) | i <- positions ]
+
+colInjective :: Sudoku -> Column -> Bool
+colInjective s c = injective vs where 
+   vs = filter (/= 0) [ s (i,c) | i <- positions ]
+
+subgridInjective :: Sudoku -> (Row,Column) -> Bool
+subgridInjective s (r,c) = injective vs where 
+   vs = filter (/= 0) (subGrid s (r,c))
+
 consistent :: Sudoku -> Bool
-consistent s = all (==True) [injective [s c | c <- con, (s c) /=0] | con <- constraintsList]
+consistent s = and $
+               [ rowInjective s r |  r <- positions ]
+                ++
+               [ colInjective s c |  c <- positions ]
+                ++
+               [ subgridInjective s (r,c) | 
+                    r <- [1,4,7], c <- [1,4,7]]
 
 extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
 extend = update
@@ -96,18 +135,18 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
--- Updated to check for all the constraints
 prune :: (Row,Column,Value) 
       -> [Constraint] -> [Constraint]
 prune _ [] = []
-prune (r,c,v) ((x,y,zs):rest) 
-      | sameSet (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
-      | otherwise = (x,y,zs) : prune (r,c,v) rest
+prune (r,c,v) ((x,y,zs):rest)
+  | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | sameblock (r,c) (x,y) = 
+        (x,y,zs\\[v]) : prune (r,c,v) rest
+  | otherwise = (x,y,zs) : prune (r,c,v) rest
 
--- Check if the the position conflicts with any of the constraints
-sameSet :: (Row,Column) -> (Row,Column) -> Bool
-sameSet (r,c) (x,y) = any (\list -> (r,c) `elem` list) matched
-    where matched = [con | con <- constraintsList, (x,y) `elem` con ]
+sameblock :: (Row,Column) -> (Row,Column) -> Bool
+sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
@@ -162,6 +201,61 @@ solveAndShow gr = solveShowNs (initNode gr)
 
 solveShowNs :: [Node] -> IO[()]
 solveShowNs = sequence . fmap showNode . solveNs
+
+example1 :: Grid
+example1 = [[5,3,0,0,7,0,0,0,0],
+            [6,0,0,1,9,5,0,0,0],
+            [0,9,8,0,0,0,0,6,0],
+            [8,0,0,0,6,0,0,0,3],
+            [4,0,0,8,0,3,0,0,1],
+            [7,0,0,0,2,0,0,0,6],
+            [0,6,0,0,0,0,2,8,0],
+            [0,0,0,4,1,9,0,0,5],
+            [0,0,0,0,8,0,0,7,9]]
+
+example2 :: Grid
+example2 = [[0,3,0,0,7,0,0,0,0],
+            [6,0,0,1,9,5,0,0,0],
+            [0,9,8,0,0,0,0,6,0],
+            [8,0,0,0,6,0,0,0,3],
+            [4,0,0,8,0,3,0,0,1],
+            [7,0,0,0,2,0,0,0,6],
+            [0,6,0,0,0,0,2,8,0],
+            [0,0,0,4,1,9,0,0,5],
+            [0,0,0,0,8,0,0,7,9]]
+
+example3 :: Grid
+example3 = [[1,0,0,0,3,0,5,0,4],
+            [0,0,0,0,0,0,0,0,3],
+            [0,0,2,0,0,5,0,9,8], 
+            [0,0,9,0,0,0,0,3,0],
+            [2,0,0,0,0,0,0,0,7],
+            [8,0,3,0,9,1,0,6,0],
+            [0,5,1,4,7,0,0,0,0],
+            [0,0,0,3,0,0,0,0,0],
+            [0,4,0,0,0,9,7,0,0]]
+
+example4 :: Grid
+example4 = [[1,2,3,4,5,6,7,8,9],
+            [2,0,0,0,0,0,0,0,0],
+            [3,0,0,0,0,0,0,0,0],
+            [4,0,0,0,0,0,0,0,0],
+            [5,0,0,0,0,0,0,0,0],
+            [6,0,0,0,0,0,0,0,0],
+            [7,0,0,0,0,0,0,0,0],
+            [8,0,0,0,0,0,0,0,0],
+            [9,0,0,0,0,0,0,0,0]]
+
+example5 :: Grid
+example5 = [[1,0,0,0,0,0,0,0,0],
+            [0,2,0,0,0,0,0,0,0],
+            [0,0,3,0,0,0,0,0,0],
+            [0,0,0,4,0,0,0,0,0],
+            [0,0,0,0,5,0,0,0,0],
+            [0,0,0,0,0,6,0,0,0],
+            [0,0,0,0,0,0,7,0,0],
+            [0,0,0,0,0,0,0,8,0],
+            [0,0,0,0,0,0,0,0,9]]
 
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
@@ -251,102 +345,3 @@ genProblem :: Node -> IO Node
 genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
-
-freeAtPos' :: Sudoku -> Position -> Constrnt -> [Value]
-freeAtPos' s (r,c) xs = let 
-  ys = filter (elem (r,c)) xs in 
-  foldl1 intersect (map ((values \\) . map s) ys)
-
-freeAtPos :: Sudoku -> (Row,Column) -> [Value]
-freeAtPos s (r,c) = freeAtPos' s (r,c) (constraintsList)
-
--- Define all constrains
-rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
-columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
-blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
-nrcBlockConstrnt = [[(r,c) | r <- b1, c <- b2] | 
-                      b1 <- [[2..4],[6..8]], 
-                      b2 <- [[2..4],[6..8]]]
-
--- By putting them in one list it should be easy for a user to add constraints
-constraintsList :: Constrnt
-constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt,nrcBlockConstrnt]
--- If you want to test without NRC compliency comment above function and use below
--- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]
-
--- Remove  a block of the 3x3 grid.
-removeBlock :: Node -> (Row, Column) -> Node
-removeBlock n (r, c) = foldl (eraseN) n (concat [x | x <- blockConstrnt, (r,c) `elem` x])
-
--- Remove n random block from the 3x3 grid.
-removeRandomBlocks :: Node -> Int -> IO Node
-removeRandomBlocks node n = do 
-        options <- randomize [(x,y) | x <- [1,4,7], y <- [1,4,7]]
-        let choices = take n options      
-        return (foldl (\p q -> removeBlock p q) node choices)                      
-
-nrcExample :: Grid
-nrcExample = [[0,0,0,3,0,0,0,0,0],
-              [0,0,0,7,0,0,3,0,0],
-              [2,0,0,0,0,0,0,0,8],
-              [0,0,6,0,0,5,0,0,0],
-              [0,9,1,6,0,0,0,0,0],
-              [3,0,0,0,7,1,2,0,0],
-              [0,0,0,0,0,0,0,3,1],
-              [0,8,0,0,4,0,0,0,0],
-              [0,0,2,0,0,0,0,0,0]] 
-
--- Execute a timing test for n times for a function.
-timingTest a = do
-    let nTimes = 1000000
-    start <- getCPUTime
-    v <- replicateM nTimes (a `seq` return ())
-    end   <- getCPUTime
-    let diff = (fromIntegral (end - start)) / (10^12)
-    putStrLn ("Ran test " ++ (show nTimes) ++ " times")
-    putStrLn ("Time difference " ++ (show diff))
-
-rsolveNsEx_2 = rsolveNs
-
-assignment2 grid = do
-  solveAndShow $ grid
-
--- Function for removing n block and minimalizing the sudoku.
--- User for assignment 4
-removeAndMinimalize orig n = do
-  new <- removeRandomBlocks orig n
-  showNode new
-  let min = minimalize new (filledPositions (fst new))
-  showNode min
-
-
-assignment4 = do
-  -- Whole sudoku
-  [original] <- rsolveNs [emptyN]
-  showNode original
-
-  putStrLn "Remove 3 blocks from the original and try to minimalize."
-  removeAndMinimalize original 3
-  putStrLn "Remove 4 blocks from the original and try to minimalize."
-  removeAndMinimalize original 4
-  putStrLn "Remove 5 blocks from the original and try to minimalize."
-  removeAndMinimalize original 5
-
-
-
-
-assignment5 = do
-    putStrLn "Generating NRC complient sudoku"
-    start1 <- getCPUTime
-    [r] <- rsolveNs [emptyN]
-    showNode r
-    end1   <- getCPUTime
-    let diff1 = (fromIntegral (end1 - start1)) / (10^12)
-    putStrLn ("   generating took: " ++ (show diff1) ++ " seconds")
-    putStrLn "Generating minimalised problem"
-    start2 <- getCPUTime
-    s  <- genProblem r
-    showNode s
-    end2   <- getCPUTime
-    let diff2 = (fromIntegral (end2 - start2)) / (10^12)
-    putStrLn ("   minimizing took: " ++ (show diff2) ++ " seconds")

@@ -5,62 +5,63 @@ import System.Random
 import Control.Monad
 import System.CPUTime
 import Lecture5_1 (assignment1)
-import Lecture5_2 (assignment2,assignment4,assignment5)
+import Lecture5_2 (assignment2,assignment4,assignment5,rsolveNsEx_2)
+import Lecture5
 
-example1 :: [[Int]]
-example1 = [[5,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]]
+-- example1 :: [[Int]]
+-- example1 = [[5,3,0,0,7,0,0,0,0],
+--             [6,0,0,1,9,5,0,0,0],
+--             [0,9,8,0,0,0,0,6,0],
+--             [8,0,0,0,6,0,0,0,3],
+--             [4,0,0,8,0,3,0,0,1],
+--             [7,0,0,0,2,0,0,0,6],
+--             [0,6,0,0,0,0,2,8,0],
+--             [0,0,0,4,1,9,0,0,5],
+--             [0,0,0,0,8,0,0,7,9]]
 
-example2 :: [[Int]]
-example2 = [[0,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]]
+-- example2 :: [[Int]]
+-- example2 = [[0,3,0,0,7,0,0,0,0],
+--             [6,0,0,1,9,5,0,0,0],
+--             [0,9,8,0,0,0,0,6,0],
+--             [8,0,0,0,6,0,0,0,3],
+--             [4,0,0,8,0,3,0,0,1],
+--             [7,0,0,0,2,0,0,0,6],
+--             [0,6,0,0,0,0,2,8,0],
+--             [0,0,0,4,1,9,0,0,5],
+--             [0,0,0,0,8,0,0,7,9]]
 
-example3 :: [[Int]]
-example3 = [[1,0,0,0,3,0,5,0,4],
-            [0,0,0,0,0,0,0,0,3],
-            [0,0,2,0,0,5,0,9,8], 
-            [0,0,9,0,0,0,0,3,0],
-            [2,0,0,0,0,0,0,0,7],
-            [8,0,3,0,9,1,0,6,0],
-            [0,5,1,4,7,0,0,0,0],
-            [0,0,0,3,0,0,0,0,0],
-            [0,4,0,0,0,9,7,0,0]]
+-- example3 :: [[Int]]
+-- example3 = [[1,0,0,0,3,0,5,0,4],
+--             [0,0,0,0,0,0,0,0,3],
+--             [0,0,2,0,0,5,0,9,8], 
+--             [0,0,9,0,0,0,0,3,0],
+--             [2,0,0,0,0,0,0,0,7],
+--             [8,0,3,0,9,1,0,6,0],
+--             [0,5,1,4,7,0,0,0,0],
+--             [0,0,0,3,0,0,0,0,0],
+--             [0,4,0,0,0,9,7,0,0]]
 
-example4 :: [[Int]]
-example4 = [[1,2,3,4,5,6,7,8,9],
-            [2,0,0,0,0,0,0,0,0],
-            [3,0,0,0,0,0,0,0,0],
-            [4,0,0,0,0,0,0,0,0],
-            [5,0,0,0,0,0,0,0,0],
-            [6,0,0,0,0,0,0,0,0],
-            [7,0,0,0,0,0,0,0,0],
-            [8,0,0,0,0,0,0,0,0],
-            [9,0,0,0,0,0,0,0,0]]
+-- example4 :: [[Int]]
+-- example4 = [[1,2,3,4,5,6,7,8,9],
+--             [2,0,0,0,0,0,0,0,0],
+--             [3,0,0,0,0,0,0,0,0],
+--             [4,0,0,0,0,0,0,0,0],
+--             [5,0,0,0,0,0,0,0,0],
+--             [6,0,0,0,0,0,0,0,0],
+--             [7,0,0,0,0,0,0,0,0],
+--             [8,0,0,0,0,0,0,0,0],
+--             [9,0,0,0,0,0,0,0,0]]
 
-example5 :: [[Int]]
-example5 = [[1,0,0,0,0,0,0,0,0],
-            [0,2,0,0,0,0,0,0,0],
-            [0,0,3,0,0,0,0,0,0],
-            [0,0,0,4,0,0,0,0,0],
-            [0,0,0,0,5,0,0,0,0],
-            [0,0,0,0,0,6,0,0,0],
-            [0,0,0,0,0,0,7,0,0],
-            [0,0,0,0,0,0,0,8,0],
-            [0,0,0,0,0,0,0,0,9]]
+-- example5 :: [[Int]]
+-- example5 = [[1,0,0,0,0,0,0,0,0],
+--             [0,2,0,0,0,0,0,0,0],
+--             [0,0,3,0,0,0,0,0,0],
+--             [0,0,0,4,0,0,0,0,0],
+--             [0,0,0,0,5,0,0,0,0],
+--             [0,0,0,0,0,6,0,0,0],
+--             [0,0,0,0,0,0,7,0,0],
+--             [0,0,0,0,0,0,0,8,0],
+--             [0,0,0,0,0,0,0,0,9]]
 
 nrcExample :: [[Int]]
 nrcExample = [[0,0,0,3,0,0,0,0,0],
@@ -115,11 +116,13 @@ Solution
 --  2d array of the cells that aren considered a set. and
 --  just add this 2d array to the list of constraints.
 
+-- The old method without constraints was faster
+
 -- Function for comparing the runtime of functions
 -- https://wiki.haskell.org/Timing_computations
 time a b = do
     -- Run the test a lot of times to get a better average
-    let nTimes = 1000000
+    let nTimes = 10000000
     -- Start running tests
     start1 <- getCPUTime
     v1 <- replicateM nTimes (a `seq` return ())
@@ -195,20 +198,21 @@ main = do
     putStrLn "\nExercise 2"
     assignment2 nrcExample
     assignment2 nrcExample2
-    putStrLn "\nTest timing of assignment 1 vs 2 a couple of times."
-    putStrLn "Left is assignment 1 and right is assignment 2."
-    putStrLn "Test NRC example"
-    time (assignment1 nrcExample) (assignment2 nrcExample)
-    time (assignment1 nrcExample2) (assignment2 nrcExample2)
-    putStrLn "\nTest example 1 through 5"
-    time (assignment1 example1) (assignment2 example1)
-    time (assignment1 example2) (assignment2 example2)
-    time (assignment1 example3) (assignment2 example3)
-    time (assignment1 example4) (assignment2 example3)
-    time (assignment1 example5) (assignment2 example4)
+    time (rsolveNs) (rsolveNsEx_2)
+    -- putStrLn "\nTest timing of assignment 1 vs 2 a couple of times."
+    -- putStrLn "Left is assignment 1 and right is assignment 2."
+    -- putStrLn "Test NRC example"
+    -- time (assignment1 nrcExample) (assignment2 nrcExample)
+    -- time (assignment1 nrcExample2) (assignment2 nrcExample2)
+    -- putStrLn "\nTest example 1 through 5"
+    -- time (assignment1 example1) (assignment2 example1)
+    -- time (assignment1 example2) (assignment2 example2)
+    -- time (assignment1 example3) (assignment2 example3)
+    -- time (assignment1 example4) (assignment2 example3)
+    -- time (assignment1 example5) (assignment2 example4)
 
-    putStrLn "\nExercise 3"
-    assingment3
+    -- putStrLn "\nExercise 3"
+    -- assingment3
     -- putStrLn "\nExercise 4"
     -- assignment4
 
