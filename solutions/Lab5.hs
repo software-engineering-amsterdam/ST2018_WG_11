@@ -106,7 +106,7 @@ Solution
 
 
 -- Exercise 2
--- 180 minutes
+-- 3,5 hours
 
 -- Look at Lecture5_2.hs for the refactored code.
 
@@ -114,8 +114,6 @@ Solution
 -- If you want to add new constraints you need to make one
 --  2d array of the cells that aren considered a set. and
 --  just add this 2d array to the list of constraints.
-
--- TODO add QuickCheck?
 
 -- Function for comparing the runtime of functions
 -- https://wiki.haskell.org/Timing_computations
