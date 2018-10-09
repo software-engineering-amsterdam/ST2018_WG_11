@@ -2,24 +2,12 @@ module Lab5 where
 
 import Data.List
 import System.Random
-import Lecture5
+-- import Lecture5
+import Lecture5_2
 
 -- 1. Modified Sudoku solver. Time: 2.5 hours
 
 {-
-
-The goal of this exercise is to extend the Sudoku program described in the lecture of this week 
-with functions that can also handle Sudokus of a special kind: the Sudokus that appear in the 
-Dutch evening newspaper NRC-Handelsblad each week (designed by Peter Ritmeester, from Oct 8, 2005 onward). 
-These NRC Sudokus are special in that they have to satisfy a few extra constraints: in addition to 
-the usual Sudoku constraints, each of the 3×3 subgrids with left-top corner (2,2), (2,6), (6,2),
-and (6,6) should also yield an injective function. The above figure gives an example (this is the NRC 
-sudoku that appeared Saturday Nov 26, 2005).
-
-Your task is to formalize this extra constraint, and to use your formalization in a program that can 
-solve this Sudoku. See also the webpage of Andries Brouwer.
-
-Deliverables: modified Sudoku solver, solution to the above puzzle, indication of time spent.
 
 +---------+---------+---------+
 |         | 3       |         |
@@ -41,7 +29,7 @@ Deliverables: modified Sudoku solver, solution to the above puzzle, indication o
 
 -}
 
--- modified sudoku solver is in Lecture5.hs
+-- modified sudoku solver is in Lecture5.hs. Time: 3 hours
 
 exampleNRC :: Grid
 exampleNRC = [[0,0,0,3,0,0,0,0,0],
@@ -57,10 +45,13 @@ exampleNRC = [[0,0,0,3,0,0,0,0,0],
 assignment1 = do
     print "Assignment1"
     print "solution example NRC Sudoku: "
-    solveAndShow exampleNRC
+    -- solveAndShow exampleNRC
 
 
--- 2. Refactor the code along the lines of this proposal, and next compare the two versions for extendability and efficiency. 
+-- 2. Refactor the code along the lines of this proposal, and next compare the two versions for extendability and efficiency. Time: 3.5 hours
 
 assignment2 = do
     print "Assignment2"
+    -- freeAtPos' (grid2sud exampleNRC) (2,4) blockConstrnt
+
+    -- this version is slower, but is easer to modify for NRC sudoku's
