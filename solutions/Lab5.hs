@@ -116,7 +116,6 @@ nodeMinusOneElement s ((r,c):xs) = eraseN (s, []) (r,c) :
     (nodeMinusOneElement s xs)
 
 assignment3 = do
-    print "assignment 3"
     -- Takes long so limited to 2
     testMinimalProblem 2
 
@@ -151,7 +150,7 @@ removeAndMinimalize node n = do
     -- Return the first one that has a unique solution
     let solvable = safeHead [x | x <- possibilities, uniqueSol(removeBlocks node x)]
     if ((length solvable) == 0) then
-        putStrLn $ "Could not find a solution with " ++ (show n) ++ " block removed."
+        putStrLn $ "Could not find a solution with " ++ (show n) ++ " blocks removed."
     else
         -- let solution = removeBlocks node (head solvable)
         showNode (minimize (removeBlocks node (head solvable)))
@@ -179,9 +178,11 @@ assignment4 = do
     putStrLn "Randomly removing three does not always work."
     randomRemoveAndMinimalize original 3
     putStrLn "Try to remove 3 blocks from the original and get an unique minimal solution."
+    -- Always successful
     removeAndMinimalize original 3
     putStrLn "Try to remove 4 blocks from the original and get an unique minimal solution."
     putStrLn "WARNING: can take a while."
+    -- Not always successful
     removeAndMinimalize original 4
     putStrLn "Not been able to find any by removing 5 blocks at the moment."
     -- Uncomment if you want to try but have not found any yet
@@ -203,7 +204,7 @@ main = do
     assignment1 nrcExample
 
     putStrLn "\nExercise 2"
-    putStrLn "Solve two know NRC sudoku's"
+    putStrLn "Solve two known NRC sudoku's"
     assignment2 nrcExample
     assignment2 nrcExample2
     putStrLn "\nLeft is assignment 1 and right is assignment 2."
@@ -222,7 +223,7 @@ main = do
     time (assignment1 example5) (assignment2 example4)
 
     putStrLn "\nExercise 3"
-    assingment3
+    assignment3
     putStrLn "\nExercise 4"
     assignment4
 
