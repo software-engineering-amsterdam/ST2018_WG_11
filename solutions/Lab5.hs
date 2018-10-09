@@ -140,9 +140,39 @@ time a b = do
     putStrLn ("   Right time " ++ (show diff2))
 
 -- Exercise 3
+{-
+    Generates random Node
+    First checks if a node has just one solution
+    Second checks if you remove one element if it has more then one solution.
+        (Checks all elements)
+-}
+testMinimalProblem :: Int -> IO Bool
+testMinimalProblem count = do
+    [random] <- rsolveNs [emptyN]
+    minimalSud <- genProblem random
+    oneSolution <- return $ uniqueSol minimalSud
+    ifRemoveMoreSol <- return $ all (==False) 
+                        [uniqueSol n | n <- removeOne minimalSud]
+    nextTest <- if count < 1 then 
+        return True else
+            testMinimalProblem (count - 1)
+    print $ "Test " ++ (show count) ++ ": " ++ 
+            (show (oneSolution && ifRemoveMoreSol))
+    return $ (oneSolution && ifRemoveMoreSol && nextTest)
 
--- If the problem is minimal this means that if you remove
---  one elemement the problem is ambigues. 
+-- Returns all nodes were one unique element has been removed
+removeOne :: Node -> [Node]
+removeOne (s, _ ) = nodeMinusOneElement s (filledPositions s)
+
+-- Returns all nodes were one unique element has been removed
+nodeMinusOneElement :: Sudoku -> [(Row,Column)] -> [Node]
+nodeMinusOneElement s [] = []
+nodeMinusOneElement s ((r,c):xs) = eraseN (s, []) (r,c) : 
+    (nodeMinusOneElement s xs)
+
+assingment3 = do
+    print "Assingment 3"
+    testMinimalProblem 10
 
 
 -- Exercise 4
@@ -178,6 +208,8 @@ main = do
     time (assignment1 example4) (assignment2 example3)
     time (assignment1 example5) (assignment2 example4)
 
+    putStrLn "\nExercise 3"
+    assingment3
     -- putStrLn "\nExercise 4"
     -- assignment4
 

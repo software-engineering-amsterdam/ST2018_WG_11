@@ -70,26 +70,29 @@ assingment2 = do
 
 {-
     Generates random Node
-    First checks if a unique solution
-    Second checks if you remove one element if it is not an 
-        unique solution, for all elements in sudoku
+    First checks if a node has just one solution
+    Second checks if you remove one element if it has more then one solution.
+        (Checks all elements)
 -}
 testMinimalProblem :: Int -> IO Bool
 testMinimalProblem count = do
     [random] <- rsolveNs [emptyN]
     minimalSud <- genProblem random
-    trueTest <- return $ uniqueSol minimalSud
-    falseTest <- return $ all (==False) [uniqueSol n | n <- removeOne minimalSud]
+    oneSolution <- return $ uniqueSol minimalSud
+    ifRemoveMoreSol <- return $ all (==False) 
+                        [uniqueSol n | n <- removeOne minimalSud]
     nextTest <- if count < 1 then 
         return True else
             testMinimalProblem (count - 1)
-    print $ "Test " ++ (show count) ++ ": " ++ (show (trueTest && falseTest))
-    return $ (trueTest && nextTest && falseTest)
+    print $ "Test " ++ (show count) ++ ": " ++ 
+            (show (oneSolution && ifRemoveMoreSol))
+    return $ (oneSolution && ifRemoveMoreSol && nextTest)
 
--- Remove one item from node for every item in node
+-- Returns all nodes were one unique element has been removed
 removeOne :: Node -> [Node]
 removeOne (s, _ ) = nodeMinusOneElement s (filledPositions s)
 
+-- Returns all nodes were one unique element has been removed
 nodeMinusOneElement :: Sudoku -> [(Row,Column)] -> [Node]
 nodeMinusOneElement s [] = []
 nodeMinusOneElement s ((r,c):xs) = eraseN (s, []) (r,c) : 
