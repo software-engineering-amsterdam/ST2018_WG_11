@@ -140,6 +140,7 @@ time a b = do
     putStrLn ("   Right time " ++ (show diff2))
 
 -- Exercise 3
+-- 180 minuts
 {-
     Generates random Node
     First checks if a node has just one solution
