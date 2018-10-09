@@ -61,8 +61,6 @@ Solution
 --  2d array of the cells that aren considered a set. and
 --  just add this 2d array to the list of constraints.
 
--- The old method without constraints was faster
-
 -- Function for comparing the runtime of functions
 -- https://wiki.haskell.org/Timing_computations
 time a b = do
@@ -117,9 +115,10 @@ nodeMinusOneElement s [] = []
 nodeMinusOneElement s ((r,c):xs) = eraseN (s, []) (r,c) : 
     (nodeMinusOneElement s xs)
 
-assingment3 = do
-    print "Assingment 3"
-    testMinimalProblem 10
+assignment3 = do
+    print "assignment 3"
+    -- Takes long so limited to 2
+    testMinimalProblem 2
 
 -- Exercise 4
 -- 180 minutes

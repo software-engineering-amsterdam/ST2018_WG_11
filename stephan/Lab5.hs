@@ -7,6 +7,8 @@ import Test.QuickCheck
 import Lab5_ex1 (assingment1)
 import Lab5_ex2 (rsolveNsEx_2)
 import Lecture5
+import Control.Monad
+import System.CPUTime
 import Text.Printf
 import Control.Exception
 import System.CPUTime
@@ -29,7 +31,7 @@ import System.CPUTime
 time :: IO t -> IO t
 time a = do
     start <- getCPUTime
-    v <- a
+    v <- replicateM 10000 (a `seq` return ())
     end   <- getCPUTime
     let diff = (fromIntegral (end - start)) / (10^12)
     printf "Computation time: %0.3f sec\n" (diff :: Double)
@@ -103,6 +105,7 @@ assingment3 = do
     testMinimalProblem 10
 
 -- 4
+-- finished this thogether with pieter on his solution
 
 removeBlock :: Node -> (Row, Column) -> Node
 removeBlock n (r, c) = foldl (eraseN) n [(r',c') | r' <- bl r, c' <- bl c ]
