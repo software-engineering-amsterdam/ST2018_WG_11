@@ -85,7 +85,7 @@ nrcExample2 = [[0,3,0,0,0,0,0,0,0],
                [0,0,0,0,0,0,0,0,0]] 
 
 -- Exercise 1 
--- 120 minutes
+-- median 3,5 hours
 -- Look at Lecture5_1.hs for the updated code.
 {--
 Solution
@@ -118,6 +118,7 @@ Solution
 -- TODO add QuickCheck?
 
 -- Function for comparing the runtime of functions
+-- https://wiki.haskell.org/Timing_computations
 time a b = do
     -- Run the test a lot of times to get a better average
     let nTimes = 1000000
@@ -177,11 +178,11 @@ main = do
     time (assignment1 example4) (assignment2 example3)
     time (assignment1 example5) (assignment2 example4)
 
-    putStrLn "\nExercise 4"
-    assignment4
+    -- putStrLn "\nExercise 4"
+    -- assignment4
 
-    putStrLn "\nExercise 5"
-    assignment5
+    -- putStrLn "\nExercise 5"
+    -- assignment5
 
 
     
