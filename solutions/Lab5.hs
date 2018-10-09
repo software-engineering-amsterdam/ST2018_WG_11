@@ -4,66 +4,11 @@ import Data.List
 import System.Random
 import Control.Monad
 import System.CPUTime
-import Lecture5_1 (assignment1)
-import Lecture5_2 (assignment2,assignment4,assignment5,rsolveNsEx_2)
+import Lecture5_1 (assignment1,rsolveNsEx_1)
+import Lecture5_2 (assignment2,assignment5,rsolveNsEx_2)
 import Lecture5
 
--- example1 :: [[Int]]
--- example1 = [[5,3,0,0,7,0,0,0,0],
---             [6,0,0,1,9,5,0,0,0],
---             [0,9,8,0,0,0,0,6,0],
---             [8,0,0,0,6,0,0,0,3],
---             [4,0,0,8,0,3,0,0,1],
---             [7,0,0,0,2,0,0,0,6],
---             [0,6,0,0,0,0,2,8,0],
---             [0,0,0,4,1,9,0,0,5],
---             [0,0,0,0,8,0,0,7,9]]
-
--- example2 :: [[Int]]
--- example2 = [[0,3,0,0,7,0,0,0,0],
---             [6,0,0,1,9,5,0,0,0],
---             [0,9,8,0,0,0,0,6,0],
---             [8,0,0,0,6,0,0,0,3],
---             [4,0,0,8,0,3,0,0,1],
---             [7,0,0,0,2,0,0,0,6],
---             [0,6,0,0,0,0,2,8,0],
---             [0,0,0,4,1,9,0,0,5],
---             [0,0,0,0,8,0,0,7,9]]
-
--- example3 :: [[Int]]
--- example3 = [[1,0,0,0,3,0,5,0,4],
---             [0,0,0,0,0,0,0,0,3],
---             [0,0,2,0,0,5,0,9,8], 
---             [0,0,9,0,0,0,0,3,0],
---             [2,0,0,0,0,0,0,0,7],
---             [8,0,3,0,9,1,0,6,0],
---             [0,5,1,4,7,0,0,0,0],
---             [0,0,0,3,0,0,0,0,0],
---             [0,4,0,0,0,9,7,0,0]]
-
--- example4 :: [[Int]]
--- example4 = [[1,2,3,4,5,6,7,8,9],
---             [2,0,0,0,0,0,0,0,0],
---             [3,0,0,0,0,0,0,0,0],
---             [4,0,0,0,0,0,0,0,0],
---             [5,0,0,0,0,0,0,0,0],
---             [6,0,0,0,0,0,0,0,0],
---             [7,0,0,0,0,0,0,0,0],
---             [8,0,0,0,0,0,0,0,0],
---             [9,0,0,0,0,0,0,0,0]]
-
--- example5 :: [[Int]]
--- example5 = [[1,0,0,0,0,0,0,0,0],
---             [0,2,0,0,0,0,0,0,0],
---             [0,0,3,0,0,0,0,0,0],
---             [0,0,0,4,0,0,0,0,0],
---             [0,0,0,0,5,0,0,0,0],
---             [0,0,0,0,0,6,0,0,0],
---             [0,0,0,0,0,0,7,0,0],
---             [0,0,0,0,0,0,0,8,0],
---             [0,0,0,0,0,0,0,0,9]]
-
-nrcExample :: [[Int]]
+nrcExample :: Grid
 nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,0,0,7,0,0,3,0,0],
               [2,0,0,0,0,0,0,0,8],
@@ -74,7 +19,7 @@ nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,8,0,0,4,0,0,0,0],
               [0,0,2,0,0,0,0,0,0]] 
 
-nrcExample2 :: [[Int]]
+nrcExample2 :: Grid
 nrcExample2 = [[0,3,0,0,0,0,0,0,0],
                [0,9,8,0,0,0,0,0,0],
                [0,4,0,0,2,0,0,1,0],
@@ -122,7 +67,7 @@ Solution
 -- https://wiki.haskell.org/Timing_computations
 time a b = do
     -- Run the test a lot of times to get a better average
-    let nTimes = 10000000
+    let nTimes = 1000000
     -- Start running tests
     start1 <- getCPUTime
     v1 <- replicateM nTimes (a `seq` return ())
@@ -176,9 +121,73 @@ assingment3 = do
     print "Assingment 3"
     testMinimalProblem 10
 
-
 -- Exercise 4
--- 120 minutes
+-- 180 minutes
+
+blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks ]
+
+safeHead :: [a] -> [a]
+safeHead [] = []
+safeHead (x:xs) = [x]
+
+-- Remove  a block of the 3x3 grid.
+removeBlock :: Node -> (Row, Column) -> Node
+removeBlock n (r, c) = foldl (eraseN) n (concat [x | x <- blockConstrnt, (r,c) `elem` x])
+
+removeBlocks :: Node -> [(Row,Column)] -> Node
+removeBlocks node xs = foldl (\p q -> removeBlock p q) node xs
+
+minimize :: Node -> Node
+minimize nod = minimalize nod (filledPositions (fst nod))
+
+-- Try to find a solution where we can remove n blocks and keep uniqueness.
+removeAndMinimalize node n = do
+    -- Get all blocks in the sudoku grid.
+    let blocks = [(x,y) | x <- [1,4,7], y <- [1,4,7]]
+    -- Get all combinations the sudoku can make
+    let combinations = permutations blocks
+    -- Get all possible 3 combinations of 3 blocks
+    let possibilities = nub [take n x | x <- combinations]
+    -- Check multiple combinations in the 3x3 grid
+    -- Return the first one that has a unique solution
+    let solvable = safeHead [x | x <- possibilities, uniqueSol(removeBlocks node x)]
+    if ((length solvable) == 0) then
+        putStrLn $ "Could not find a solution with " ++ (show n) ++ " block removed."
+    else
+        -- let solution = removeBlocks node (head solvable)
+        showNode (minimize (removeBlocks node (head solvable)))
+
+-- Remove n random block from the 3x3 grid.
+removeRandomBlocks :: Node -> Int -> IO Node
+removeRandomBlocks node n = do 
+        options <- randomize [(x,y) | x <- [1,4,7], y <- [1,4,7]]
+        let choices = take n options      
+        return (removeBlocks node choices)-- (foldl (\p q -> removeBlock p q) node choices)  
+
+-- Function for removing n block and minimalizing the sudoku.
+-- This does not always work because of ambiguity. Think of removing top 3 blocks.
+randomRemoveAndMinimalize orig n = do
+    new <- removeRandomBlocks orig n
+    showNode new
+    let min = minimalize new (filledPositions (fst new))
+    showNode min
+  
+  
+assignment4 = do
+    -- Whole sudoku
+    [original] <- rsolveNs [emptyN]
+    showNode original
+    putStrLn "Randomly removing three does not always work."
+    randomRemoveAndMinimalize original 3
+    putStrLn "Try to remove 3 blocks from the original and get an unique minimal solution."
+    removeAndMinimalize original 3
+    putStrLn "Try to remove 4 blocks from the original and get an unique minimal solution."
+    putStrLn "WARNING: can take a while."
+    removeAndMinimalize original 4
+    putStrLn "Not been able to find any by removing 5 blocks at the moment."
+    -- Uncomment if you want to try but have not found any yet
+    -- putStrLn "Try to remove 5 blocks from the original and get an unique minimal solution."
+    -- removeAndMinimalize original 5
 
 -- Exercise 5
 -- 60 minutes
@@ -189,35 +198,37 @@ assingment3 = do
 -- This is logical because the more constraints -> the easier it is to fill in values.
 -- If more values are absent the tree runs way deeper.
 -- And because the tree is way deeper it takes more time to compute all possibilities.
--- TODO: Add calculations to prove this.
 
 main = do 
     putStrLn "Exercise 1"
     assignment1 nrcExample
 
     putStrLn "\nExercise 2"
+    putStrLn "Solve two know NRC sudoku's"
     assignment2 nrcExample
     assignment2 nrcExample2
-    time (rsolveNs) (rsolveNsEx_2)
-    -- putStrLn "\nTest timing of assignment 1 vs 2 a couple of times."
-    -- putStrLn "Left is assignment 1 and right is assignment 2."
-    -- putStrLn "Test NRC example"
-    -- time (assignment1 nrcExample) (assignment2 nrcExample)
-    -- time (assignment1 nrcExample2) (assignment2 nrcExample2)
-    -- putStrLn "\nTest example 1 through 5"
-    -- time (assignment1 example1) (assignment2 example1)
-    -- time (assignment1 example2) (assignment2 example2)
-    -- time (assignment1 example3) (assignment2 example3)
-    -- time (assignment1 example4) (assignment2 example3)
-    -- time (assignment1 example5) (assignment2 example4)
+    putStrLn "\nLeft is assignment 1 and right is assignment 2."
+    putStrLn "Test timing assignment 1 and 2 on random solve."
+    time (rsolveNsEx_1) (rsolveNsEx_2)
+    time (rsolveNsEx_1) (rsolveNsEx_2)
+    putStrLn "\nTest timing of assignment 1 vs 2 a couple of times."
+    putStrLn "Test NRC example"
+    time (assignment1 nrcExample) (assignment2 nrcExample)
+    time (assignment1 nrcExample2) (assignment2 nrcExample2)
+    putStrLn "\nTest example 1 through 5"
+    time (assignment1 example1) (assignment2 example1)
+    time (assignment1 example2) (assignment2 example2)
+    time (assignment1 example3) (assignment2 example3)
+    time (assignment1 example4) (assignment2 example3)
+    time (assignment1 example5) (assignment2 example4)
 
-    -- putStrLn "\nExercise 3"
-    -- assingment3
-    -- putStrLn "\nExercise 4"
-    -- assignment4
+    putStrLn "\nExercise 3"
+    assingment3
+    putStrLn "\nExercise 4"
+    assignment4
 
-    -- putStrLn "\nExercise 5"
-    -- assignment5
+    putStrLn "\nExercise 5"
+    assignment5
 
 
     

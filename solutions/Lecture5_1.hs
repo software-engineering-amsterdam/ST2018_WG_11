@@ -382,6 +382,8 @@ genProblem n = do ys <- randomize xs
 --           s  <- genProblem r
 --           showNode s
 
+rsolveNsEx_1 = rsolveNs
+
 nrcExample :: Grid
 nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,0,0,7,0,0,3,0,0],
