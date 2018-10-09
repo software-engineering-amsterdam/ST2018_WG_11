@@ -274,11 +274,11 @@ constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt,nrcBlockConst
 -- If you want to test without NRC compliency comment above function and use below
 -- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]
 
--- TODO comment
+-- Remove  a block of the 3x3 grid.
 removeBlock :: Node -> (Row, Column) -> Node
 removeBlock n (r, c) = foldl (eraseN) n (concat [x | x <- blockConstrnt, (r,c) `elem` x])
 
--- TODO comment
+-- Remove n random block from the 3x3 grid.
 removeRandomBlocks :: Node -> Int -> IO Node
 removeRandomBlocks node n = do 
         options <- randomize [(x,y) | x <- [1,4,7], y <- [1,4,7]]
@@ -296,6 +296,7 @@ nrcExample = [[0,0,0,3,0,0,0,0,0],
               [0,8,0,0,4,0,0,0,0],
               [0,0,2,0,0,0,0,0,0]] 
 
+-- Execute a timing test for n times for a function.
 timingTest a = do
     let nTimes = 1000000
     start <- getCPUTime
@@ -308,6 +309,8 @@ timingTest a = do
 assignment2 grid = do
   solveAndShow $ grid
 
+-- Function for removing n block and minimalizing the sudoku.
+-- User for assignment 4
 removeAndMinimalize orig n = do
   new <- removeRandomBlocks orig n
   showNode new
