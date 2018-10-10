@@ -272,18 +272,7 @@ nrcBlockConstrnt = [[(r,c) | r <- b1, c <- b2] |
 constraintsList :: Constrnt
 constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt,nrcBlockConstrnt]
 -- If you want to test without NRC compliency comment above function and use below
--- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]
-
--- Remove  a block of the 3x3 grid.
-removeBlock :: Node -> (Row, Column) -> Node
-removeBlock n (r, c) = foldl (eraseN) n (concat [x | x <- blockConstrnt, (r,c) `elem` x])
-
--- Remove n random block from the 3x3 grid.
-removeRandomBlocks :: Node -> Int -> IO Node
-removeRandomBlocks node n = do 
-        options <- randomize [(x,y) | x <- [1,4,7], y <- [1,4,7]]
-        let choices = take n options      
-        return (foldl (\p q -> removeBlock p q) node choices)                      
+-- constraintsList = concat [rowConstrnt,columnConstrnt,blockConstrnt]                  
 
 nrcExample :: Grid
 nrcExample = [[0,0,0,3,0,0,0,0,0],
@@ -311,29 +300,6 @@ rsolveNsEx_2 = rsolveNs
 assignment2 grid = do
   solveAndShow $ grid
 
--- Function for removing n block and minimalizing the sudoku.
--- User for assignment 4
-removeAndMinimalize orig n = do
-  new <- removeRandomBlocks orig n
-  showNode new
-  let min = minimalize new (filledPositions (fst new))
-  showNode min
-
-
-assignment4 = do
-  -- Whole sudoku
-  [original] <- rsolveNs [emptyN]
-  showNode original
-
-  putStrLn "Remove 3 blocks from the original and try to minimalize."
-  removeAndMinimalize original 3
-  putStrLn "Remove 4 blocks from the original and try to minimalize."
-  removeAndMinimalize original 4
-  putStrLn "Remove 5 blocks from the original and try to minimalize."
-  removeAndMinimalize original 5
-
-
-
 
 assignment5 = do
     putStrLn "Generating NRC complient sudoku"
@@ -344,6 +310,7 @@ assignment5 = do
     let diff1 = (fromIntegral (end1 - start1)) / (10^12)
     putStrLn ("   generating took: " ++ (show diff1) ++ " seconds")
     putStrLn "Generating minimalised problem"
+    putStrLn "WARNING: can take a while."
     start2 <- getCPUTime
     s  <- genProblem r
     showNode s
