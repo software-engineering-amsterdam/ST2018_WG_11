@@ -55,3 +55,8 @@ assignment2 = do
     -- freeAtPos' (grid2sud exampleNRC) (2,4) blockConstrnt
 
     -- this version is slower, but is easer to modify for NRC sudoku's
+
+
+-- 3. Minimal Sudoku problem. Time: ... 
+-- removeHint:: Node -> [Node]
+-- removeHint
