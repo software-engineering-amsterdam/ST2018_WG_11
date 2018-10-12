@@ -66,7 +66,8 @@ fermatsCheck maxK = do
 assignment4 = do
     print "---- Assignment 4 - fermat"
     print "You see that as you increasing k first fail decreases really fast"
-    fermatsCheck 9
+    fermat <- fermatsCheck 9
+    print fermat
 
 --5
 
@@ -100,12 +101,12 @@ carmichaelCheck :: Int -> IO [Integer]
 carmichaelCheck maxK = do
     first <- firstFail maxK carmichael
     next <- if (maxK > 1) then carmichaelCheck (maxK - 1) else return []
-    return (first : next)
+    return (next ++ [first])
         
 assignment5 = do
     print "---- Assignment 5 - carmichael"
     check <- carmichaelCheck 20
-    print $ reverse $ check
+    print check
     print "You see that as you increasing k first fail does not decrease as fast as before"
     print "This is because carmichael numbers are special numbers: see code for details"
 
@@ -169,7 +170,8 @@ showMersPrimes n (p:ps) = do
 assignment6 = do
     print "---- Assignment 6 - Miller Robin"
     print "Testing miller-rabin primality for k=1,2; 3 takes to long"
-    millerTest 2
+    miller <- millerTest 2
+    print miller
     print ""
     print "Finding large mers primes"
     showMersPrimes 12 primes
