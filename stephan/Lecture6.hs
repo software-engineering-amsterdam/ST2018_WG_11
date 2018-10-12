@@ -110,8 +110,8 @@ coprimes = filter (uncurry coprime) pairs
 expM ::  Integer -> Integer -> Integer -> Integer
 expM x y = rem (x^y)
 
-exM :: Integer -> Integer -> Integer -> Integer
-exM = expM -- to be replaced by a fast version
+-- exM :: Integer -> Integer -> Integer -> Integer
+-- exM = expM -- to be replaced by a fast version
 
 primeTestF :: Integer -> IO Bool
 primeTestF n = do 
@@ -143,8 +143,9 @@ primeMR k n = do
     if exM a (n-1) n /= 1 || mrComposite a n
     then return False else primeMR (k-1) n
 
+-- Assingment 3
 composites :: [Integer]
-composites = error "not yet implemented"
+composites = [x | x <- [1..], not $ prime x]
 
 encodeDH :: Integer -> Integer -> Integer -> Integer
 encodeDH p k m = m*k `mod` p
@@ -215,3 +216,48 @@ secret, bound :: Integer
 secret = mers 18
 bound  = 131
 
+-- Assingment 1
+{-    
+    source: https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/fast-modular-exponentiation 
+    b > 0 is the base 
+    e > 0 is the exponent
+    m > 0 is the modulo
+
+    example e = 117:
+    117 = 1110101 in binary
+        = 1 + 4 + 16 + 32 + 64
+    so b^117 = b^1*b^4*b^16*b^32*b^64
+
+    using A^2 mod C = (A * A) mod C = ((A mod C) * (A mod C)) mod C
+    
+    we can rewrite:
+    b^117 `mod` m = (b^1*b^4*b^16*b^32*b^64) `mod` m
+      = ((b^1 `mod` m)*(b^4 `mod` m)*(b^16 `mod` m)*(b^32 `mod` m)*(b^64 `mod` m) `mod` m
+    
+    This can be fast calculated with squareMod
+
+    -- can still be optimized by remembering previous power of two's
+-}
+exM :: Integer -> Integer -> Integer -> Integer
+exM b 0 m = 1 `mod` m
+exM b e m = (squareMod b powerOfTwo m * rest) `mod` m
+                where 
+                    powerOfTwo = until (\x -> x * 2 > e) (\x -> x * 2) 1
+                    rest = if not (e == powerOfTwo) then exM b (e - powerOfTwo) m
+                            else 1
+
+{-
+    Fast calculation of b^e mod m
+    !! ==> e must be in the power of 2
+
+    b^2 `mod` m  = (b^1 * b^1) `mod` m = (b^1 `mod` m) * (b^1 `mod` m) `mod` m
+    b^4 `mod` m  = (b^2 * b^2) `mod` m = (b^2 `mod` m) * (b^2 `mod` m) `mod` m
+    etc
+    b^n `mod` m  = (b^(n/2) * b^(n/2)) `mod` m = (b^(n/2) `mod` m) * (b^(n/2) `mod` m) `mod` m
+
+-}
+squareMod :: Integer -> Integer -> Integer -> Integer
+squareMod b 1 m = b `mod` m
+squareMod b e m = (value * value) `mod` m
+                    where
+                        value = squareMod b (e `div` 2) m
