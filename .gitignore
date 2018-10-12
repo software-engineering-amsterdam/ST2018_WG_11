@@ -33,3 +33,6 @@ cabal.project.local~
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# extra
+.vscode
