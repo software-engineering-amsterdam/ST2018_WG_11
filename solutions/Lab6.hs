@@ -42,6 +42,23 @@ assignment1 = do
 -- 3 Time: 10 min
 -- line 147 lecture 6
 
+assignment3 = do
+    print "---- Assignment 3: composites"
+    print "Testing with first 100 composites"
+    print "Comparing composites function with expected output: "
+    print ((take 100 (composites)) == [4,6,8,9,10,12,14,15,16,18,
+                                      20,21,22,24,25,26,27,28,30,
+                                      32,33,34,35,36,38,39,40,42,
+                                      44,45,46,48,49,50,51,52,54,
+                                      55,56,57,58,60,62,63,64,65,
+                                      66,68,69,70,72,74,75,76,77,
+                                      78,80,81,82,84,85,86,87,88,
+                                      90,91,92,93,94,95,96,98,99,
+                                      100,102,104,105,106,108,110,
+                                      111,112,114,115,116,117,118,
+                                      119,120,121,122,123,124,125,
+                                      126,128,129,130,132,133])
+
 --4 Time: 1 hour
 
 {-
@@ -64,7 +81,7 @@ fermatsCheck maxK = do
     return (next ++ [first])
 
 assignment4 = do
-    print "---- Assignment 4 - fermat"
+    print "---- Assignment 4: fermat"
     print "You see that as you increasing k first fail decreases really fast"
     fermat <- fermatsCheck 9
     print fermat
@@ -104,7 +121,7 @@ carmichaelCheck maxK = do
     return (next ++ [first])
         
 assignment5 = do
-    print "---- Assignment 5 - carmichael"
+    print "---- Assignment 5: carmichael"
     check <- carmichaelCheck 20
     print check
     print "You see that as you increasing k first fail does not decrease as fast as before"
@@ -170,7 +187,7 @@ showMersPrimes n (p:ps) = do
     return ()
 
 assignment6 = do
-    print "---- Assignment 6 - Miller Robin"
+    print "---- Assignment 6: Miller Robin"
     print "Testing miller-rabin primality for k=1,2; 3 takes to long"
     miller <- millerTest 2
     print miller
@@ -181,7 +198,7 @@ assignment6 = do
 main = do
     assignment1
     print ""
-    print "---- Assignment 3 in lecture"
+    assignment3
     print ""
     assignment4
     print ""
