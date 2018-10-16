@@ -146,7 +146,7 @@ primeMR k n = do
 
 -- Assingment 3
 composites :: [Integer]
-composites = [x | x <- [1..], not $ prime x]
+composites = [x | x <- [2..], not $ prime x]
 
 encodeDH :: Integer -> Integer -> Integer -> Integer
 encodeDH p k m = m*k `mod` p
