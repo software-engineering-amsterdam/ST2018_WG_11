@@ -21,24 +21,24 @@ modulairCheck b e m = e < 0 || m == 0 || (b^(e) `mod` m == (exM b (e) m))
 exM' :: Integer -> Integer -> Integer -> Integer
 exM' = expM
 
-test1_slow = exM' 9 9999999 13
-test1_fast = exM 9 9999999 13
-test2_slow = exM' 9 99999999 13
-test2_fast = exM 9 99999999 13
+test1_slow = exM' 5 99999999 19
+test1_fast = exM 5 99999999 19
+test2_slow = exM' 7 999999999 17
+test2_fast = exM 7 999999999 17
 
 assignment1 = do
     print "---- Assignment 1 & 2"
     print "Testing runtime of different functions and correctness"
     quickCheck (withMaxSuccess 10000 modulairCheck)
-    print ("To test which was faster I ran the above function in "
-        ++ "the :set +s enviroment the results are printed below")
-    print "test1 slow: exM' 9 9999999 13: (0.28 secs, 11,605,312 bytes)"
-    print "test1 fast: exM 9 9999999 13: (0.00 secs, 168,288 bytes)" 
-    print "test2 slow: exM' 9 99999999 13: (4.38 secs, 117,611,984 bytes)"
-    print "test2 fast: exM 9 99999999 13: (0.00 secs, 219,048 bytes)" 
+    print ("To test which was faster we ran the above function in "
+        ++ "the :set +s enviroment. The results are printed below")
+    print "test1 slow: exM' 5 99999999 19: (3.90 secs, 86,137,064 bytes)"
+    print "test1 fast: exM 5 99999999 19: (0.00 secs, 65,328 bytes)" 
+    print "test2 slow: exM' 7 999999999 17: (174.59 secs, 993,818,264 bytes)"
+    print "test2 fast: exM 7 999999999 17: (0.00 secs, 65,328 bytes)" 
     print ("You can clearly see that the old methods increases very fast in time and size"
-        ++ " while the new fast methods stay around the same running time")
-
+        ++ " while the new fast methods stay around the same running time and size")
+        
 -- 3 
 -- line 147 lecture 6
 

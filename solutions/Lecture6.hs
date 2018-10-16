@@ -235,30 +235,29 @@ bound  = 131
     b^117 `mod` m = (b^1*b^4*b^16*b^32*b^64) `mod` m
       = ((b^1 `mod` m)*(b^4 `mod` m)*(b^16 `mod` m)*(b^32 `mod` m)*(b^64 `mod` m) `mod` m
     
-    This can be fast calculated with squareMod
-
-    -- can still be optimized by remembering previous power of two's
 -}
+-- Source: https://stackoverflow.com/questions/9166148/how-to-implement-decimal-to-binary-function-in-haskell
+int2Bin :: Integer -> [Integer]
+int2Bin 0 = [0]
+int2Bin n = reverse (helper n)
+
+-- helper :: (Integral a1, Num a2) => a1 -> [a2]
+helper 0 = []
+helper n | n `mod` 2 == 1 = 1 : helper (n `div` 2)
+         | n `mod` 2 == 0 = 0 : helper (n `div` 2)
+
+-- starting n = 1, highest 2^k value, base and mod m as input
+-- gives back list with potential mod values
+modList :: Integer -> Integer -> Integer -> Integer -> [Integer]
+modList n max b m = if n <= max then [b] ++ (modList (n * 2) max calc m) else [b]
+    where calc = (b * b) `mod` m
+
+-- second integer as base counter, should be 0
+indexList :: [Integer] -> Int -> [Int]
+indexList [] _ = []
+indexList (x:xn) c = if x == 1 then c : (indexList xn (c + 1)) else indexList xn (c + 1)
+
 exM :: Integer -> Integer -> Integer -> Integer
-exM b 0 m = 1 `mod` m
-exM b e m = (squareMod b powerOfTwo m * rest) `mod` m
-                where 
-                    powerOfTwo = until (\x -> x * 2 > e) (\x -> x * 2) 1
-                    rest = if not (e == powerOfTwo) then exM b (e - powerOfTwo) m
-                            else 1
-
-{-
-    Fast calculation of b^e mod m
-    !! ==> e must be in the power of 2
-
-    b^2 `mod` m  = (b^1 * b^1) `mod` m = (b^1 `mod` m) * (b^1 `mod` m) `mod` m
-    b^4 `mod` m  = (b^2 * b^2) `mod` m = (b^2 `mod` m) * (b^2 `mod` m) `mod` m
-    etc
-    b^n `mod` m  = (b^(n/2) * b^(n/2)) `mod` m = (b^(n/2) `mod` m) * (b^(n/2) `mod` m) `mod` m
-
--}
-squareMod :: Integer -> Integer -> Integer -> Integer
-squareMod b 1 m = b `mod` m
-squareMod b e m = (value * value) `mod` m
-                    where
-                        value = squareMod b (e `div` 2) m
+exM a b c = product [mods !! x | x <- indxs] `mod` c
+    where indxs = indexList (reverse (int2Bin b)) 0
+          mods = modList 1 (2 ^ (maximum indxs)) a c
