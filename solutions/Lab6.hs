@@ -39,10 +39,10 @@ assignment1 = do
     print ("You can clearly see that the old methods increases very fast in time and size"
         ++ " while the new fast methods stay around the same running time and size")
         
--- 3 
+-- 3 Time: 10 min
 -- line 147 lecture 6
 
---4 time: 30 min
+--4 Time: 1 hour
 
 {-
     Using little Fermat: 
@@ -69,7 +69,7 @@ assignment4 = do
     fermat <- fermatsCheck 9
     print fermat
 
---5
+--5 Time: 30 min
 
 {-
     Using the carmichael numbers you can see that the fermat
@@ -110,7 +110,9 @@ assignment5 = do
     print "You see that as you increasing k first fail does not decrease as fast as before"
     print "This is because carmichael numbers are special numbers: see code for details"
 
---6 - Miller-Rabin primality check
+--6 Time: 2 Hour
+
+-- Miller-Rabin primality check
 {-
     Uses miller rabin method to check if a non-prime is identified as a prime.
     Returns the first non-prime were it went wrong
