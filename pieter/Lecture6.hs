@@ -111,7 +111,7 @@ expM ::  Integer -> Integer -> Integer -> Integer
 expM x y = rem (x^y)
 
 exM :: Integer -> Integer -> Integer -> Integer
-exM = exM'' -- to be replaced by a fast version
+exM = exM''
 
 -- Better solution from khanacedemy
 exM'' :: Integer -> Integer -> Integer -> Integer

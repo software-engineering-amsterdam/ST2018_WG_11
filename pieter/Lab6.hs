@@ -58,7 +58,7 @@ helpExM' b e m c e_prime | e_prime < (e-1) = helpExM' b e m nextC (e_prime + 1)
 
 -- Simple function to test equivalence with original
 testExM :: Integer -> Integer -> Integer -> Bool
-testExM b e m = (b>0 && e>0 && m>0) --> (exM'' b e m) == (exM b e m)
+testExM b e m = (b>0 && e>0 && m>0) --> (exM'' b e m) == (expM b e m)
  
 -- Exercise 2
 -- 60 minutes
@@ -67,7 +67,7 @@ assignment1And2 = do
   start <-getCPUTime
   (exM'' 9 9999999 13) `seq` return ()
   end1 <- getCPUTime
-  (exM 9 9999999 13) `seq` return ()
+  (expM 9 9999999 13) `seq` return ()
   end2 <- getCPUTime
 
   let diff1 = (fromIntegral (end1 - start)) / (10^12)
@@ -153,12 +153,35 @@ assignment6_1 = do
 --   p <- prime_tests_M 3 carmichael
 --   b <- prime (2^p-1)
 
+-- test2 k [] = do
+--   putStrLn "end"
+test2 k (x:xs) = do
+  b <- primeMR k x
+  if b then do
+    putStrLn $ "gevonden "++ show(x)
+    test2 k xs
+  else do
+    putStrLn $ "niet gevonden "++ show(x)
+    test2 k xs
+
+-- test 2 [2^x - 1|x <- primes]
+
 test :: Int -> [Integer] -> IO Integer
-test k [] = do return 2
+test k [] = do return 0
 test k (x:xs) = do
-  p <- prime_tests_M k [x]
-  let b = prime (2^p-1)
-  if b then return p else test k xs
+  -- putStrLn "yo"
+  -- print x
+  -- print xs
+  p <- prime_tests_M k (x:xs)
+  -- exM'' 2 p 1
+  let nogwa  = exM'' 2 p ((p-1)`div` 2)
+  -- let b = (nogwa == -1)
+  b <- primeMR 1 ((2^p)-1)
+  if b then putStrLn ((show nogwa)++" found "++show((p^2)-1)) else putStrLn ((show nogwa)++" not found " ++ show ((p-1)`div` 2))
+  if b then 
+    return p
+  else 
+    test (k) xs
 
 
 
